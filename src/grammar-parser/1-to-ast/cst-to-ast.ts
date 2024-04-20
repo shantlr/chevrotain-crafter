@@ -134,6 +134,7 @@ export const grammarCstToAst = createVisitor(grammarParser, {
     return {
       name: children.name[0].image,
       body: children.body ? visit(children.body[0]) : null,
+      or: children.or?.map(visit) ?? null,
     };
   },
   r_rule_body: (children, visit) => {
@@ -142,6 +143,13 @@ export const grammarCstToAst = createVisitor(grammarParser, {
     }
     return null;
   },
+  r_rule_body_or: (children, visit) => {
+    return children.branch?.map(visit) ?? [];
+  },
+  r_rule_body_or_branch: (children, visit) => {
+    return visit(children.value[0]);
+  },
+
   r_rule_body_expr: (children, visit) => {
     if (children.scalar) {
       return visit(children.scalar[0]);

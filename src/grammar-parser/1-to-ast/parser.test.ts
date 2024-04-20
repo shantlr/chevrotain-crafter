@@ -107,6 +107,7 @@ describe("1-to-ast/parser", () => {
                 ""world"",
               ],
               "name": "rule_1",
+              "or": null,
             },
           ],
         }
@@ -124,10 +125,12 @@ describe("1-to-ast/parser", () => {
             {
               "body": null,
               "name": "rule_1",
+              "or": null,
             },
             {
               "body": null,
               "name": "rule_2",
+              "or": null,
             },
           ],
         }
@@ -149,6 +152,7 @@ describe("1-to-ast/parser", () => {
                 },
               ],
               "name": "rule_1",
+              "or": null,
             },
           ],
         }
@@ -172,6 +176,7 @@ describe("1-to-ast/parser", () => {
                 },
               ],
               "name": "rule_1",
+              "or": null,
             },
             {
               "body": [
@@ -179,10 +184,41 @@ describe("1-to-ast/parser", () => {
                 ""."",
               ],
               "name": "rule_2",
+              "or": null,
             },
           ],
         }
       `);
     });
+
+    it("should parse pth", () => {});
+    it("should parse or", () => {
+      expect(
+        parseGrammarFileToAst(`rules:
+  rule_1:
+    | "hello"
+    | "world"`),
+      ).toMatchInlineSnapshot(`
+        {
+          "name": "rules",
+          "rules": [
+            {
+              "body": null,
+              "name": "rule_1",
+              "or": [
+                [
+                  ""hello"",
+                  ""world"",
+                ],
+              ],
+            },
+          ],
+        }
+      `);
+    });
+    it("should parse named or branch", () => {});
+    it("should parse named identifier", () => {});
+    it("should parse named string", () => {});
+    it("should parse named pth", () => {});
   });
 });

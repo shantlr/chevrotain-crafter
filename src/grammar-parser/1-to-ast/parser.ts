@@ -179,6 +179,20 @@ export class GrammarParser extends CstParser {
     this.SUBRULE(this.r_rule_body, {
       LABEL: "body",
     });
+    this.OPTION({
+      GATE: () => {
+        return (
+          this.LA(1).tokenType === GRAMMAR_TOKENS.nl &&
+          this.LA(2).tokenType === GRAMMAR_TOKENS.indent
+        );
+      },
+      DEF: () => {
+        this.CONSUME(GRAMMAR_TOKENS.nl);
+        this.SUBRULE(this.r_rule_body_or, {
+          LABEL: "or",
+        });
+      },
+    });
   });
 
   r_rule_body = this.RULE("r_rule_body", () => {
@@ -201,6 +215,30 @@ export class GrammarParser extends CstParser {
         },
       },
     ]);
+  });
+
+  r_rule_body_or = this.RULE("r_rule_body_or", () => {
+    this.CONSUME(GRAMMAR_TOKENS.indent);
+    this.MANY_SEP_WITHOUT_OUTDENT({
+      SEP: () => this.CONSUME(GRAMMAR_TOKENS.nl),
+      DEF: (index) => {
+        this.consume(index, GRAMMAR_TOKENS.pipe);
+        this.subrule(index, this.r_rule_body_or_branch, {
+          LABEL: "branch",
+        });
+      },
+    });
+    this.OPTION(() => {
+      this.CONSUME(GRAMMAR_TOKENS.outdent);
+    });
+  });
+
+  r_rule_body_or_branch = this.RULE("r_rule_body_or_branch", () => {
+    this.MANY(() => {
+      this.SUBRULE(this.r_rule_body_expr, {
+        LABEL: "value",
+      });
+    });
   });
 
   r_rule_body_expr = this.RULE("r_rule_body_expr", () => {
