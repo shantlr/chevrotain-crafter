@@ -151,8 +151,30 @@ export const grammarCstToAst = createVisitor(grammarParser, {
   },
 
   r_rule_body_expr: (children, visit) => {
+    let value;
     if (children.scalar) {
-      return visit(children.scalar[0]);
+      value = visit(children.scalar[0]);
+    }
+    if (value) {
+      if (children.optional) {
+        return {
+          type: "optional",
+          value,
+        };
+      }
+      if (children.many) {
+        return {
+          type: "many",
+          value,
+        };
+      }
+      if (children.many1) {
+        return {
+          type: "many1",
+          value,
+        };
+      }
+      return value;
     }
     throw new Error(`Unhandled rule body expr ${JSON.stringify(children)}`);
   },
@@ -169,5 +191,17 @@ export const grammarCstToAst = createVisitor(grammarParser, {
         value: children.identifier[0].image,
       };
     }
+    if (children.pth) {
+      return {
+        type: "pth",
+        value: visit(children.pth[0]),
+      };
+    }
+  },
+  r_rule_body_expr_pth: (children, visit) => {
+    if (children.value) {
+      return visit(children.value[0]);
+    }
+    throw new Error(`Unhandled rule body expr pth ${JSON.stringify(children)}`);
   },
 });

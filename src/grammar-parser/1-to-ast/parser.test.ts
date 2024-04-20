@@ -191,7 +191,31 @@ describe("1-to-ast/parser", () => {
       `);
     });
 
-    it("should parse pth", () => {});
+    it("should parse pth", () => {
+      expect(
+        parseGrammarFileToAst(`rules:
+  rule_1: ("hello" "world")`),
+      ).toMatchInlineSnapshot(`
+        {
+          "name": "rules",
+          "rules": [
+            {
+              "body": [
+                {
+                  "type": "pth",
+                  "value": [
+                    ""hello"",
+                    ""world"",
+                  ],
+                },
+              ],
+              "name": "rule_1",
+              "or": null,
+            },
+          ],
+        }
+      `);
+    });
     it("should parse or", () => {
       expect(
         parseGrammarFileToAst(`rules:
@@ -216,9 +240,136 @@ describe("1-to-ast/parser", () => {
         }
       `);
     });
-    it("should parse named or branch", () => {});
-    it("should parse named identifier", () => {});
-    it("should parse named string", () => {});
-    it("should parse named pth", () => {});
+
+    describe("modifier", () => {
+      it("should parse string with modifiers", () => {
+        expect(
+          parseGrammarFileToAst(`rules:
+  rule_1: "hello"? "hello"+ "hello"*`),
+        ).toMatchInlineSnapshot(`
+          {
+            "name": "rules",
+            "rules": [
+              {
+                "body": [
+                  {
+                    "type": "optional",
+                    "value": ""hello"",
+                  },
+                  {
+                    "type": "many1",
+                    "value": ""hello"",
+                  },
+                  {
+                    "type": "many",
+                    "value": ""hello"",
+                  },
+                ],
+                "name": "rule_1",
+                "or": null,
+              },
+            ],
+          }
+        `);
+      });
+
+      it("should parse identifier with modifiers", () => {
+        expect(
+          parseGrammarFileToAst(`rules:
+  rule_1: rule_2? rule_3+ rule_4*`),
+        ).toMatchInlineSnapshot(`
+          {
+            "name": "rules",
+            "rules": [
+              {
+                "body": [
+                  {
+                    "type": "optional",
+                    "value": {
+                      "type": "ref",
+                      "value": "rule_2",
+                    },
+                  },
+                  {
+                    "type": "many1",
+                    "value": {
+                      "type": "ref",
+                      "value": "rule_3",
+                    },
+                  },
+                  {
+                    "type": "many",
+                    "value": {
+                      "type": "ref",
+                      "value": "rule_4",
+                    },
+                  },
+                ],
+                "name": "rule_1",
+                "or": null,
+              },
+            ],
+          }
+        `);
+      });
+      it("should parse pth with modifiers", () => {
+        expect(
+          parseGrammarFileToAst(`rules:
+  rule_1: ("hello")? (rule_3)+ (rule_4)*`),
+        ).toMatchInlineSnapshot(`
+          {
+            "name": "rules",
+            "rules": [
+              {
+                "body": [
+                  {
+                    "type": "optional",
+                    "value": {
+                      "type": "pth",
+                      "value": [
+                        ""hello"",
+                      ],
+                    },
+                  },
+                  {
+                    "type": "many1",
+                    "value": {
+                      "type": "pth",
+                      "value": [
+                        {
+                          "type": "ref",
+                          "value": "rule_3",
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    "type": "many",
+                    "value": {
+                      "type": "pth",
+                      "value": [
+                        {
+                          "type": "ref",
+                          "value": "rule_4",
+                        },
+                      ],
+                    },
+                  },
+                ],
+                "name": "rule_1",
+                "or": null,
+              },
+            ],
+          }
+        `);
+      });
+      it("should parse named with modifiers", () => {});
+    });
+    describe("named", () => {
+      it("should parse named or branch", () => {});
+      it("should parse named identifier", () => {});
+      it("should parse named string", () => {});
+      it("should parse named pth", () => {});
+    });
   });
 });

@@ -251,6 +251,31 @@ export class GrammarParser extends CstParser {
         },
       },
     ]);
+    this.OPTION(() => {
+      this.OR1([
+        {
+          ALT: () => {
+            this.CONSUME(GRAMMAR_TOKENS.questionMark, {
+              LABEL: "optional",
+            });
+          },
+        },
+        {
+          ALT: () => {
+            this.CONSUME(GRAMMAR_TOKENS.asterisk, {
+              LABEL: "many",
+            });
+          },
+        },
+        {
+          ALT: () => {
+            this.CONSUME(GRAMMAR_TOKENS.plus, {
+              LABEL: "many1",
+            });
+          },
+        },
+      ]);
+    });
   });
 
   r_rule_body_expr_scalar = this.RULE("r_rule_body_expr_scalar", () => {
@@ -266,7 +291,9 @@ export class GrammarParser extends CstParser {
       },
       {
         ALT: () => {
-          this.SUBRULE(this.r_rule_body_expr_pth);
+          this.SUBRULE(this.r_rule_body_expr_pth, {
+            LABEL: "pth",
+          });
         },
       },
     ]);
