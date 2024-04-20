@@ -244,8 +244,20 @@ export class GrammarParser extends CstParser {
   r_rule_body_expr = this.RULE("r_rule_body_expr", () => {
     this.OR([
       {
+        GATE: () => this.LA(2).tokenType === GRAMMAR_TOKENS.colon,
         ALT: () => {
-          this.SUBRULE(this.r_rule_body_expr_scalar, {
+          this.CONSUME(GRAMMAR_TOKENS.identifier, {
+            LABEL: "name",
+          });
+          this.CONSUME(GRAMMAR_TOKENS.colon);
+          this.SUBRULE1(this.r_rule_body_expr_scalar, {
+            LABEL: "scalar",
+          });
+        },
+      },
+      {
+        ALT: () => {
+          this.SUBRULE2(this.r_rule_body_expr_scalar, {
             LABEL: "scalar",
           });
         },

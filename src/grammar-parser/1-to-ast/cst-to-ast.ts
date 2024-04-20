@@ -152,29 +152,28 @@ export const grammarCstToAst = createVisitor(grammarParser, {
 
   r_rule_body_expr: (children, visit) => {
     let value;
+    const name = children.name?.[0].image;
+    let modifier;
     if (children.scalar) {
       value = visit(children.scalar[0]);
     }
+
+    if (children.optional) {
+      modifier = "optional";
+    }
+    if (children.many) {
+      modifier = "many";
+    }
+    if (children.many1) {
+      modifier = "many1";
+    }
+
     if (value) {
-      if (children.optional) {
-        return {
-          type: "optional",
-          value,
-        };
-      }
-      if (children.many) {
-        return {
-          type: "many",
-          value,
-        };
-      }
-      if (children.many1) {
-        return {
-          type: "many1",
-          value,
-        };
-      }
-      return value;
+      return {
+        name,
+        value,
+        modifier,
+      };
     }
     throw new Error(`Unhandled rule body expr ${JSON.stringify(children)}`);
   },

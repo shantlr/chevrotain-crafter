@@ -103,8 +103,16 @@ describe("1-to-ast/parser", () => {
           "rules": [
             {
               "body": [
-                ""hello"",
-                ""world"",
+                {
+                  "modifier": undefined,
+                  "name": undefined,
+                  "value": ""hello"",
+                },
+                {
+                  "modifier": undefined,
+                  "name": undefined,
+                  "value": ""world"",
+                },
               ],
               "name": "rule_1",
               "or": null,
@@ -147,8 +155,12 @@ describe("1-to-ast/parser", () => {
             {
               "body": [
                 {
-                  "type": "ref",
-                  "value": "rule_2",
+                  "modifier": undefined,
+                  "name": undefined,
+                  "value": {
+                    "type": "ref",
+                    "value": "rule_2",
+                  },
                 },
               ],
               "name": "rule_1",
@@ -169,10 +181,18 @@ describe("1-to-ast/parser", () => {
           "rules": [
             {
               "body": [
-                ""hello"",
                 {
-                  "type": "ref",
-                  "value": "rule_2",
+                  "modifier": undefined,
+                  "name": undefined,
+                  "value": ""hello"",
+                },
+                {
+                  "modifier": undefined,
+                  "name": undefined,
+                  "value": {
+                    "type": "ref",
+                    "value": "rule_2",
+                  },
                 },
               ],
               "name": "rule_1",
@@ -180,8 +200,16 @@ describe("1-to-ast/parser", () => {
             },
             {
               "body": [
-                ""world"",
-                ""."",
+                {
+                  "modifier": undefined,
+                  "name": undefined,
+                  "value": ""world"",
+                },
+                {
+                  "modifier": undefined,
+                  "name": undefined,
+                  "value": ""."",
+                },
               ],
               "name": "rule_2",
               "or": null,
@@ -202,11 +230,23 @@ describe("1-to-ast/parser", () => {
             {
               "body": [
                 {
-                  "type": "pth",
-                  "value": [
-                    ""hello"",
-                    ""world"",
-                  ],
+                  "modifier": undefined,
+                  "name": undefined,
+                  "value": {
+                    "type": "pth",
+                    "value": [
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""hello"",
+                      },
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""world"",
+                      },
+                    ],
+                  },
                 },
               ],
               "name": "rule_1",
@@ -231,8 +271,16 @@ describe("1-to-ast/parser", () => {
               "name": "rule_1",
               "or": [
                 [
-                  ""hello"",
-                  ""world"",
+                  {
+                    "modifier": undefined,
+                    "name": undefined,
+                    "value": ""hello"",
+                  },
+                  {
+                    "modifier": undefined,
+                    "name": undefined,
+                    "value": ""world"",
+                  },
                 ],
               ],
             },
@@ -253,15 +301,18 @@ describe("1-to-ast/parser", () => {
               {
                 "body": [
                   {
-                    "type": "optional",
+                    "modifier": "optional",
+                    "name": undefined,
                     "value": ""hello"",
                   },
                   {
-                    "type": "many1",
+                    "modifier": "many1",
+                    "name": undefined,
                     "value": ""hello"",
                   },
                   {
-                    "type": "many",
+                    "modifier": "many",
+                    "name": undefined,
                     "value": ""hello"",
                   },
                 ],
@@ -284,21 +335,24 @@ describe("1-to-ast/parser", () => {
               {
                 "body": [
                   {
-                    "type": "optional",
+                    "modifier": "optional",
+                    "name": undefined,
                     "value": {
                       "type": "ref",
                       "value": "rule_2",
                     },
                   },
                   {
-                    "type": "many1",
+                    "modifier": "many1",
+                    "name": undefined,
                     "value": {
                       "type": "ref",
                       "value": "rule_3",
                     },
                   },
                   {
-                    "type": "many",
+                    "modifier": "many",
+                    "name": undefined,
                     "value": {
                       "type": "ref",
                       "value": "rule_4",
@@ -323,34 +377,49 @@ describe("1-to-ast/parser", () => {
               {
                 "body": [
                   {
-                    "type": "optional",
-                    "value": {
-                      "type": "pth",
-                      "value": [
-                        ""hello"",
-                      ],
-                    },
-                  },
-                  {
-                    "type": "many1",
+                    "modifier": "optional",
+                    "name": undefined,
                     "value": {
                       "type": "pth",
                       "value": [
                         {
-                          "type": "ref",
-                          "value": "rule_3",
+                          "modifier": undefined,
+                          "name": undefined,
+                          "value": ""hello"",
                         },
                       ],
                     },
                   },
                   {
-                    "type": "many",
+                    "modifier": "many1",
+                    "name": undefined,
                     "value": {
                       "type": "pth",
                       "value": [
                         {
-                          "type": "ref",
-                          "value": "rule_4",
+                          "modifier": undefined,
+                          "name": undefined,
+                          "value": {
+                            "type": "ref",
+                            "value": "rule_3",
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    "modifier": "many",
+                    "name": undefined,
+                    "value": {
+                      "type": "pth",
+                      "value": [
+                        {
+                          "modifier": undefined,
+                          "name": undefined,
+                          "value": {
+                            "type": "ref",
+                            "value": "rule_4",
+                          },
                         },
                       ],
                     },
@@ -366,10 +435,92 @@ describe("1-to-ast/parser", () => {
       it("should parse named with modifiers", () => {});
     });
     describe("named", () => {
-      it("should parse named or branch", () => {});
-      it("should parse named identifier", () => {});
-      it("should parse named string", () => {});
-      it("should parse named pth", () => {});
+      it("should parse named identifier", () => {
+        expect(
+          parseGrammarFileToAst(`rules:
+  rule_1: name:rule_2`),
+        ).toMatchInlineSnapshot(`
+          {
+            "name": "rules",
+            "rules": [
+              {
+                "body": [
+                  {
+                    "modifier": undefined,
+                    "name": "name",
+                    "value": {
+                      "type": "ref",
+                      "value": "rule_2",
+                    },
+                  },
+                ],
+                "name": "rule_1",
+                "or": null,
+              },
+            ],
+          }
+        `);
+      });
+      it("should parse named string", () => {
+        expect(
+          parseGrammarFileToAst(`rules:
+  rule_1: name:"hello"`),
+        ).toMatchInlineSnapshot(`
+          {
+            "name": "rules",
+            "rules": [
+              {
+                "body": [
+                  {
+                    "modifier": undefined,
+                    "name": "name",
+                    "value": ""hello"",
+                  },
+                ],
+                "name": "rule_1",
+                "or": null,
+              },
+            ],
+          }
+        `);
+      });
+      it("should parse named pth", () => {
+        expect(
+          parseGrammarFileToAst(`rules:
+  rule_1: name:("hello" "world")`),
+        ).toMatchInlineSnapshot(`
+          {
+            "name": "rules",
+            "rules": [
+              {
+                "body": [
+                  {
+                    "modifier": undefined,
+                    "name": "name",
+                    "value": {
+                      "type": "pth",
+                      "value": [
+                        {
+                          "modifier": undefined,
+                          "name": undefined,
+                          "value": ""hello"",
+                        },
+                        {
+                          "modifier": undefined,
+                          "name": undefined,
+                          "value": ""world"",
+                        },
+                      ],
+                    },
+                  },
+                ],
+                "name": "rule_1",
+                "or": null,
+              },
+            ],
+          }
+        `);
+      });
     });
   });
 });
