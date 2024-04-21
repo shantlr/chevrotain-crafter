@@ -55,37 +55,43 @@ export const parseGrammarFileToAst = (
   fileText: string,
   {
     applyParser = (p) => p.r_root(),
+    debug = false,
   }: {
     /**
      * This is mainly for testing purposes
      */
     applyParser?: (p: typeof grammarParser) => CstNode;
+    debug?: boolean;
   } = {},
 ) => {
   const tokens = tokenizeGrammar(fileText);
 
-  console.log(tokens);
+  // console.log(tokens);
 
   if (tokens.errors.length) {
-    tokens.errors.forEach((err) => {
-      logLexError(fileText, err);
-    });
+    if (debug) {
+      tokens.errors.forEach((err) => {
+        logLexError(fileText, err);
+      });
+    }
     throw new Error("Fail to parse tokens");
   }
 
   grammarParser.input = tokens.tokens;
   const cst = applyParser(grammarParser);
 
-  console.log(JSON.stringify(cst, null, 2));
+  // console.log(JSON.stringify(cst, null, 2));
 
   if (grammarParser.errors.length) {
-    grammarParser.errors.forEach((err) => {
-      logParseError(fileText, err);
-    });
+    if (debug) {
+      grammarParser.errors.forEach((err) => {
+        logParseError(fileText, err);
+      });
+    }
     throw new Error("Fail to parse grammar");
   }
 
   const ast = grammarCstToAst(cst);
-  console.log(">>", JSON.stringify(ast, null, 2));
+  // console.log(">>", JSON.stringify(ast, null, 2));
   return ast;
 };

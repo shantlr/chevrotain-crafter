@@ -115,7 +115,6 @@ describe("1-to-ast/parser", () => {
                 },
               ],
               "name": "rule_1",
-              "or": null,
             },
           ],
         }
@@ -131,14 +130,12 @@ describe("1-to-ast/parser", () => {
           "name": "rules",
           "rules": [
             {
-              "body": null,
+              "body": [],
               "name": "rule_1",
-              "or": null,
             },
             {
-              "body": null,
+              "body": [],
               "name": "rule_2",
-              "or": null,
             },
           ],
         }
@@ -164,7 +161,6 @@ describe("1-to-ast/parser", () => {
                 },
               ],
               "name": "rule_1",
-              "or": null,
             },
           ],
         }
@@ -196,7 +192,6 @@ describe("1-to-ast/parser", () => {
                 },
               ],
               "name": "rule_1",
-              "or": null,
             },
             {
               "body": [
@@ -212,7 +207,6 @@ describe("1-to-ast/parser", () => {
                 },
               ],
               "name": "rule_2",
-              "or": null,
             },
           ],
         }
@@ -250,7 +244,6 @@ describe("1-to-ast/parser", () => {
                 },
               ],
               "name": "rule_1",
-              "or": null,
             },
           ],
         }
@@ -267,22 +260,28 @@ describe("1-to-ast/parser", () => {
           "name": "rules",
           "rules": [
             {
-              "body": null,
-              "name": "rule_1",
-              "or": [
-                [
-                  {
-                    "modifier": undefined,
-                    "name": undefined,
-                    "value": ""hello"",
-                  },
-                  {
-                    "modifier": undefined,
-                    "name": undefined,
-                    "value": ""world"",
-                  },
-                ],
+              "body": [
+                {
+                  "type": "or",
+                  "value": [
+                    [
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""hello"",
+                      },
+                    ],
+                    [
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""world"",
+                      },
+                    ],
+                  ],
+                },
               ],
+              "name": "rule_1",
             },
           ],
         }
@@ -317,7 +316,6 @@ describe("1-to-ast/parser", () => {
                   },
                 ],
                 "name": "rule_1",
-                "or": null,
               },
             ],
           }
@@ -360,7 +358,6 @@ describe("1-to-ast/parser", () => {
                   },
                 ],
                 "name": "rule_1",
-                "or": null,
               },
             ],
           }
@@ -426,13 +423,42 @@ describe("1-to-ast/parser", () => {
                   },
                 ],
                 "name": "rule_1",
-                "or": null,
               },
             ],
           }
         `);
       });
-      it("should parse named with modifiers", () => {});
+      it("should parse named with modifiers", () => {
+        expect(
+          parseGrammarFileToAst(`rules:
+  rule_1: param_1:("hello" )+`),
+        ).toMatchInlineSnapshot(`
+          {
+            "name": "rules",
+            "rules": [
+              {
+                "body": [
+                  {
+                    "modifier": "many1",
+                    "name": "param_1",
+                    "value": {
+                      "type": "pth",
+                      "value": [
+                        {
+                          "modifier": undefined,
+                          "name": undefined,
+                          "value": ""hello"",
+                        },
+                      ],
+                    },
+                  },
+                ],
+                "name": "rule_1",
+              },
+            ],
+          }
+        `);
+      });
     });
     describe("named", () => {
       it("should parse named identifier", () => {
@@ -455,7 +481,6 @@ describe("1-to-ast/parser", () => {
                   },
                 ],
                 "name": "rule_1",
-                "or": null,
               },
             ],
           }
@@ -478,7 +503,6 @@ describe("1-to-ast/parser", () => {
                   },
                 ],
                 "name": "rule_1",
-                "or": null,
               },
             ],
           }
@@ -515,7 +539,109 @@ describe("1-to-ast/parser", () => {
                   },
                 ],
                 "name": "rule_1",
-                "or": null,
+              },
+            ],
+          }
+        `);
+      });
+    });
+
+    describe("binary operator", () => {
+      it("should parse or binary", () => {
+        expect(
+          parseGrammarFileToAst(`rules:
+  rule_1: "hello" | "world" | "fizbuzz"`),
+        ).toMatchInlineSnapshot(`
+          {
+            "name": "rules",
+            "rules": [
+              {
+                "body": [
+                  {
+                    "type": "or",
+                    "value": [
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""hello"",
+                      },
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""world"",
+                      },
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""fizbuzz"",
+                      },
+                    ],
+                  },
+                ],
+                "name": "rule_1",
+              },
+            ],
+          }
+        `);
+      });
+
+      it("should parse or combinaison", () => {
+        expect(
+          parseGrammarFileToAst(`rules:
+  rule_1: "hello" | "world" "center" "after" | "after-2" "then" "end"`),
+        ).toMatchInlineSnapshot(`
+          {
+            "name": "rules",
+            "rules": [
+              {
+                "body": [
+                  {
+                    "type": "or",
+                    "value": [
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""hello"",
+                      },
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""world"",
+                      },
+                    ],
+                  },
+                  {
+                    "modifier": undefined,
+                    "name": undefined,
+                    "value": ""center"",
+                  },
+                  {
+                    "type": "or",
+                    "value": [
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""after"",
+                      },
+                      {
+                        "modifier": undefined,
+                        "name": undefined,
+                        "value": ""after-2"",
+                      },
+                    ],
+                  },
+                  {
+                    "modifier": undefined,
+                    "name": undefined,
+                    "value": ""then"",
+                  },
+                  {
+                    "modifier": undefined,
+                    "name": undefined,
+                    "value": ""end"",
+                  },
+                ],
+                "name": "rule_1",
               },
             ],
           }

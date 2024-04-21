@@ -1,6 +1,14 @@
-import { type CstNode, type CstParser, type ParserMethod } from "chevrotain";
+import {
+  type IToken,
+  type CstNode,
+  type CstParser,
+  type ParserMethod,
+} from "chevrotain";
 
 import { grammarParser } from "./parser";
+import { mergeConsecutive } from "./utils/merge-consecutive";
+import { flatten, last, reduce } from "lodash-es";
+import { GRAMMAR_TOKENS } from "./tokens";
 
 type ParserRuleKeys<P, Key = keyof P> = Key extends keyof P
   ? P[Key] extends ParserMethod<any, any>
@@ -14,15 +22,13 @@ export const createVisitor = <
   P extends CstParser,
   Visitors extends {
     [key in ParserRuleKeys<P>]?: (
-      children: CstNode["children"],
+      children: Record<string, Array<CstNode | IToken>>,
       visit: (cst: CstNode) => any,
     ) => any;
   },
 >(
   parser: P,
-  visitors: {
-    [key in ParserRuleKeys<P>]?: Visitors[key];
-  },
+  visitors: Visitors,
   opt?: {
     default?: (children: CstNode, visit: (cst: any) => any) => any;
   },
@@ -62,29 +68,29 @@ export const createVisitor = <
 
 export const grammarCstToAst = createVisitor(grammarParser, {
   r_root: (children, visit) => {
-    return visit(children.fields[0]);
+    return visit(children.fields[0] as CstNode);
   },
   r_root_field: (children, visit) => {
     if (children.rules) {
-      return visit(children.rules[0]);
+      return visit(children.rules[0] as CstNode);
     }
-    const name = children.name[0].image;
+    const name = (children.name[0] as IToken).image;
     if (name === "tokens") {
       return {
         name,
-        tokens: children.tokens?.map(visit) ?? [],
+        tokens: (children.tokens as CstNode[])?.map(visit) ?? [],
       };
     }
 
     return {
-      name: children.name[0].image,
+      name: (children.name[0] as IToken).image,
     };
   },
   r_token: (children, visit) => {
     return {
-      name: children.name[0].image,
+      name: (children.name[0] as IToken).image,
       options:
-        children.options?.map(visit).reduce((acc, val) => {
+        (children.options as CstNode[])?.map(visit).reduce((acc, val) => {
           acc[val.name] = val.value;
           return acc;
         }, {}) ?? {},
@@ -92,27 +98,27 @@ export const grammarCstToAst = createVisitor(grammarParser, {
   },
   r_token_option: (children, visit) => {
     return {
-      name: children.name[0].image,
-      value: visit(children.value[0]),
+      name: (children.name[0] as IToken).image,
+      value: visit(children.value[0] as CstNode),
     };
   },
   r_token_option_value: (children, visit) => {
     if (children.number) {
-      return Number(children.number[0].image);
+      return Number((children.number[0] as IToken).image);
     }
     if (children.regex) {
-      return new RegExp((children.regex[0].image as string).slice(1, -1));
+      return new RegExp((children.regex[0] as IToken).image.slice(1, -1));
     }
     if (children.doubleQuoteString) {
-      return children.doubleQuoteString[0].image;
+      return (children.doubleQuoteString[0] as IToken).image;
     }
     if (children.singleQuoteString) {
-      return children.singleQuoteString[0].image;
+      return (children.singleQuoteString[0] as IToken).image;
     }
     if (children.identifier) {
       return {
         type: "identifier",
-        value: children.identifier[0].image,
+        value: (children.identifier[0] as IToken).image,
       };
     }
     if (children.true) {
@@ -127,35 +133,83 @@ export const grammarCstToAst = createVisitor(grammarParser, {
   r_rules: (children, visit) => {
     return {
       name: "rules",
-      rules: children.rules?.map(visit) ?? [],
+      rules: (children.rules as CstNode[])?.map(visit) ?? [],
     };
   },
   r_rule: (children, visit) => {
     return {
-      name: children.name[0].image,
-      body: children.body ? visit(children.body[0]) : null,
-      or: children.or?.map(visit) ?? null,
+      name: (children.name[0] as IToken).image,
+      body: flatten(
+        mergeConsecutive(
+          (children.body as CstNode[]).map(visit).filter((v) => v != null),
+          (v) => (v?.type === "or_sequence" ? "or" : NaN),
+          (orBranches) => ({
+            type: "or",
+            value: orBranches.map((v) => v.value),
+          }),
+        ).map((v) =>
+          v?.type === "or_sequence"
+            ? {
+                type: "or",
+                value: [v.value],
+              }
+            : v,
+        ),
+      ),
     };
   },
-  r_rule_body: (children, visit) => {
+  r_rule_or_sequence: (children, visit) => {
+    return {
+      type: "or_sequence",
+      value: visit(children.value[0] as CstNode),
+    };
+  },
+  r_rule_sequence: (children, visit) => {
     if (children.expr) {
-      return children.expr.map(visit);
+      return flatten((children.expr as CstNode[]).map(visit));
     }
     return null;
   },
-  r_rule_body_or: (children, visit) => {
-    return children.branch?.map(visit) ?? [];
-  },
-  r_rule_body_or_branch: (children, visit) => {
-    return visit(children.value[0]);
+  r_rule_body_expr: (children, visit) => {
+    return visit(children.value[0] as CstNode);
   },
 
-  r_rule_body_expr: (children, visit) => {
+  r_rule_body_expr_binary: (children, visit) => {
+    const initial = visit(children.left[0] as CstNode);
+    const rights = (children.right as CstNode[])?.map(visit);
+
+    const res = reduce(
+      (children.operator as IToken[]) ?? [],
+      (nodes, operator, index) => {
+        const left = last(nodes);
+        const right = rights[index] as CstNode;
+        if (operator.tokenType === GRAMMAR_TOKENS.pipe) {
+          if (left.type === "or") {
+            left.value.push(right);
+          } else {
+            nodes.pop();
+            nodes.push({
+              type: "or",
+              value: [left, right],
+            });
+          }
+        } else {
+          nodes.push();
+        }
+
+        return nodes;
+      },
+      [initial],
+    );
+    return res;
+  },
+
+  r_rule_body_expr_unary: (children, visit) => {
     let value;
-    const name = children.name?.[0].image;
+    const name = (children.name?.[0] as IToken)?.image;
     let modifier;
     if (children.scalar) {
-      value = visit(children.scalar[0]);
+      value = visit(children.scalar[0] as CstNode);
     }
 
     if (children.optional) {
@@ -175,32 +229,32 @@ export const grammarCstToAst = createVisitor(grammarParser, {
         modifier,
       };
     }
-    throw new Error(`Unhandled rule body expr ${JSON.stringify(children)}`);
+    throw new Error(`Unhandled rule_body_expr ${JSON.stringify(children)}`);
   },
   r_rule_body_expr_scalar: (children, visit) => {
     if (children.singleQuoteString) {
-      return children.singleQuoteString[0].image;
+      return (children.singleQuoteString[0] as IToken).image;
     }
     if (children.doubleQuoteString) {
-      return children.doubleQuoteString[0].image;
+      return (children.doubleQuoteString[0] as IToken).image;
     }
     if (children.identifier) {
       return {
         type: "ref",
-        value: children.identifier[0].image,
+        value: (children.identifier[0] as IToken).image,
       };
     }
     if (children.pth) {
       return {
         type: "pth",
-        value: visit(children.pth[0]),
+        value: visit(children.pth[0] as CstNode),
       };
     }
   },
   r_rule_body_expr_pth: (children, visit) => {
     if (children.value) {
-      return visit(children.value[0]);
+      return visit(children.value[0] as CstNode);
     }
-    throw new Error(`Unhandled rule body expr pth ${JSON.stringify(children)}`);
+    throw new Error(`Unhandled rule_body_expr_pth ${JSON.stringify(children)}`);
   },
 });

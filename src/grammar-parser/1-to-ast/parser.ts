@@ -176,9 +176,10 @@ export class GrammarParser extends CstParser {
       LABEL: "name",
     });
     this.CONSUME(GRAMMAR_TOKENS.colon);
-    this.SUBRULE(this.r_rule_body, {
+    this.SUBRULE(this.r_rule_sequence, {
       LABEL: "body",
     });
+
     this.OPTION({
       GATE: () => {
         return (
@@ -188,61 +189,79 @@ export class GrammarParser extends CstParser {
       },
       DEF: () => {
         this.CONSUME(GRAMMAR_TOKENS.nl);
-        this.SUBRULE(this.r_rule_body_or, {
-          LABEL: "or",
+        this.CONSUME(GRAMMAR_TOKENS.indent);
+
+        this.MANY_SEP_WITHOUT_OUTDENT({
+          SEP: () => this.CONSUME2(GRAMMAR_TOKENS.nl),
+          DEF: (index) => {
+            this.or(index, [
+              {
+                ALT: () =>
+                  this.subrule(index, this.r_rule_or_sequence, {
+                    LABEL: "body",
+                  }),
+              },
+              {
+                ALT: () =>
+                  this.subrule(index + 1, this.r_rule_sequence, {
+                    LABEL: "body",
+                  }),
+              },
+            ]);
+          },
+        });
+
+        this.OPTION1(() => {
+          this.CONSUME(GRAMMAR_TOKENS.outdent);
         });
       },
     });
   });
 
-  r_rule_body = this.RULE("r_rule_body", () => {
-    this.OR([
-      // {
-      //   GATE: () => this.LA(2).tokenType === GRAMMAR_TOKENS.colon,
-      //   ALT: () => {
-      //     this.CONSUME(GRAMMAR_TOKENS.identifier, {
-      //       LABEL: "name",
-      //     });
-      //   },
-      // },
-      {
-        ALT: () => {
-          this.MANY(() => {
-            this.SUBRULE(this.r_rule_body_expr, {
-              LABEL: "expr",
-            });
-          });
-        },
-      },
-    ]);
-  });
-
-  r_rule_body_or = this.RULE("r_rule_body_or", () => {
-    this.CONSUME(GRAMMAR_TOKENS.indent);
-    this.MANY_SEP_WITHOUT_OUTDENT({
-      SEP: () => this.CONSUME(GRAMMAR_TOKENS.nl),
-      DEF: (index) => {
-        this.consume(index, GRAMMAR_TOKENS.pipe);
-        this.subrule(index, this.r_rule_body_or_branch, {
-          LABEL: "branch",
-        });
-      },
-    });
-    this.OPTION(() => {
-      this.CONSUME(GRAMMAR_TOKENS.outdent);
-    });
-  });
-
-  r_rule_body_or_branch = this.RULE("r_rule_body_or_branch", () => {
+  r_rule_sequence = this.RULE("r_rule_sequence", () => {
     this.MANY(() => {
       this.SUBRULE(this.r_rule_body_expr, {
-        LABEL: "value",
+        LABEL: "expr",
       });
     });
   });
 
+  r_rule_or_sequence = this.RULE("r_rule_or_sequence", () => {
+    this.CONSUME(GRAMMAR_TOKENS.pipe);
+    this.SUBRULE(this.r_rule_sequence, {
+      LABEL: "value",
+    });
+  });
+
   r_rule_body_expr = this.RULE("r_rule_body_expr", () => {
+    this.SUBRULE(this.r_rule_body_expr_binary, {
+      LABEL: "value",
+    });
+  });
+
+  r_rule_body_expr_binary = this.RULE("r_rule_body_expr_binary", () => {
+    this.SUBRULE(this.r_rule_body_expr_unary, {
+      LABEL: "left",
+    });
+    this.MANY(() => {
+      this.OR([
+        {
+          ALT: () => {
+            this.CONSUME(GRAMMAR_TOKENS.pipe, {
+              LABEL: "operator",
+            });
+          },
+        },
+      ]);
+      this.SUBRULE1(this.r_rule_body_expr_unary, {
+        LABEL: "right",
+      });
+    });
+  });
+
+  r_rule_body_expr_unary = this.RULE("r_rule_body_expr_unary", () => {
     this.OR([
+      // named prefix
       {
         GATE: () => this.LA(2).tokenType === GRAMMAR_TOKENS.colon,
         ALT: () => {
@@ -255,6 +274,7 @@ export class GrammarParser extends CstParser {
           });
         },
       },
+      // simple value
       {
         ALT: () => {
           this.SUBRULE2(this.r_rule_body_expr_scalar, {
@@ -263,6 +283,8 @@ export class GrammarParser extends CstParser {
         },
       },
     ]);
+
+    // modifier
     this.OPTION(() => {
       this.OR1([
         {
@@ -314,7 +336,7 @@ export class GrammarParser extends CstParser {
   r_rule_body_expr_pth = this.RULE("r_rule_body_expr_pth", () => {
     this.CONSUME(GRAMMAR_TOKENS.pthOpen);
     this.AT_LEAST_ONE(() => {
-      this.SUBRULE(this.r_rule_body, {
+      this.SUBRULE(this.r_rule_sequence, {
         LABEL: "value",
       });
     });
