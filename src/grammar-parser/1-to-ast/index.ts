@@ -66,8 +66,6 @@ export const parseGrammarFileToAst = (
 ) => {
   const tokens = tokenizeGrammar(fileText);
 
-  // console.log(tokens);
-
   if (tokens.errors.length) {
     if (debug) {
       tokens.errors.forEach((err) => {

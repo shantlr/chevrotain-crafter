@@ -1,5 +1,15 @@
 import { parseGrammarFileToAst } from "./1-to-ast";
 
-export const parseGrammarFile = (fileText: string) => {
-  const ast = parseGrammarFileToAst(fileText);
+export const parseGrammarFile = (
+  fileText: string,
+  {
+    debug,
+  }: {
+    debug: boolean;
+  },
+) => {
+  const ast = parseGrammarFileToAst(fileText, {
+    debug,
+  });
+  console.log("ast", ast);
 };

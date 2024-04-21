@@ -7,6 +7,7 @@ import {
   type TokenType,
 } from "chevrotain";
 import { last, map, mapValues, orderBy } from "lodash-es";
+import { mergeConsecutive } from "./utils/merge-consecutive";
 
 const createTokens = <TokenMap>(tokens: {
   [key in keyof TokenMap]: {
@@ -229,5 +230,14 @@ export const tokenizeGrammar = (text: string) => {
     );
   }
 
-  return tokens;
+  const tokenList = mergeConsecutive(
+    tokens.tokens,
+    (token) => (token.tokenType === GRAMMAR_TOKENS.nl ? "nl" : NaN),
+    (v) => v[0],
+  );
+
+  return {
+    ...tokens,
+    tokens: tokenList,
+  };
 };

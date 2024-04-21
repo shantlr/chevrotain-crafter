@@ -68,7 +68,7 @@ export const createVisitor = <
 
 export const grammarCstToAst = createVisitor(grammarParser, {
   r_root: (children, visit) => {
-    return visit(children.fields[0] as CstNode);
+    return (children.fields as CstNode[]).map(visit);
   },
   r_root_field: (children, visit) => {
     if (children.rules) {

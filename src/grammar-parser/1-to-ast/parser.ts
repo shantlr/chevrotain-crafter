@@ -3,7 +3,7 @@ import { GRAMMAR_TOKENS, GRAMMAR_TOKEN_LIST } from "./tokens";
 
 export class GrammarParser extends CstParser {
   r_root = this.RULE("r_root", () => {
-    this.OPTION(() => {
+    this.MANY(() => {
       this.SUBRULE(this.r_root_field, {
         LABEL: "fields",
       });
