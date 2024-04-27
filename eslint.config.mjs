@@ -17,6 +17,7 @@ export default [
   ...compat.extends('plugin:prettier/recommended'),
   {
     rules: {
+      "no-useless-return": "off",
       "@typescript-eslint/consistent-type-definitions": "off",
       "@typescript-eslint/strict-boolean-expressions": "off",
       "@typescript-eslint/explicit-function-return-type": "off",

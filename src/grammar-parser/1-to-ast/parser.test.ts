@@ -695,7 +695,12 @@ describe('1-to-ast/parser', () => {
           `tokens:
   token_1:
 
+
+
 rules:
+  
+
+
   rule_1: "hello" "world"`,
           { debug: true }
         )

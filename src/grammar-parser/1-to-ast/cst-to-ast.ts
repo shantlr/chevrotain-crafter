@@ -45,30 +45,11 @@ export const createVisitor = <
   return visit;
 };
 
-// const visitSubRule = (
-//   cst: any,
-//   visitor: (cst: any) => any,
-//   opt?: { name?: string; omit?: string[]; error?: string },
-// ) => {
-//   let c = cst;
-//   if (opt?.omit) {
-//     c = omit(c, opt.omit);
-//   }
-
-//   const keys = Object.keys(c);
-//   if (keys.length === 1 && c[keys[0]]?.length === 1) {
-//     return visitor(c[keys[0]][0]);
-//   }
-
-//   console.log(cst);
-//   throw new Error(
-//     opt?.error ?? `COULD NOT MAP '${opt?.name}' ${JSON.stringify(cst)}`,
-//   );
-// };
-
 export const grammarCstToAst = createVisitor(grammarParser, {
   r_root: (children, visit) => {
-    return (children.fields as CstNode[]).map(visit);
+    return {
+      fields: (children.fields as CstNode[]).map(visit),
+    };
   },
   r_root_field: (children, visit) => {
     if (children.rules) {
