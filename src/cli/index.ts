@@ -1,4 +1,4 @@
-import { prog } from "./program";
+import { prog } from './program';
 
 const main = async () => {
   await prog.parseAsync(process.argv);

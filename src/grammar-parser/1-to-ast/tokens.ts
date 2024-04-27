@@ -5,9 +5,9 @@ import {
   createToken,
   createTokenInstance,
   type TokenType,
-} from "chevrotain";
-import { last, map, mapValues, orderBy } from "lodash-es";
-import { mergeConsecutive } from "./utils/merge-consecutive";
+} from 'chevrotain';
+import { last, map, mapValues, orderBy } from 'lodash-es';
+import { trimTextLines } from './utils/trim-text';
 
 const createTokens = <TokenMap>(tokens: {
   [key in keyof TokenMap]: {
@@ -36,8 +36,8 @@ const createTokens = <TokenMap>(tokens: {
             name: k,
             pattern: v.pattern,
             line_breaks: v.line_breaks,
-          },
-    ),
+          }
+    )
   );
 
   return {
@@ -50,7 +50,7 @@ const createTokens = <TokenMap>(tokens: {
           return t.PATTERN?.toString().length;
         },
       ],
-      ["desc", "desc"],
+      ['desc', 'desc']
     ),
   };
 };
@@ -67,7 +67,7 @@ const resetIndentStack = () => {
 const matchIndentBase =
   (type: string): CustomPatternMatcherFunc =>
   (text, offset, matchedTokens, groups) => {
-    const isStartOfLine = !offset || text[offset - 1] === "\n";
+    const isStartOfLine = !offset || text[offset - 1] === '\n';
     if (!isStartOfLine) {
       return null;
     }
@@ -86,7 +86,7 @@ const matchIndentBase =
 
     // indent
     if (currentLevel > prevLevel) {
-      if (type === "indent") {
+      if (type === 'indent') {
         indentStack.push(currentLevel);
         return wsMatch;
       }
@@ -94,7 +94,7 @@ const matchIndentBase =
     }
 
     // outdent
-    if (type === "outdent") {
+    if (type === 'outdent') {
       const stackLastMatchedLevel = indentStack.lastIndexOf(currentLevel);
       const numberOfDedents =
         stackLastMatchedLevel >= 0
@@ -112,14 +112,14 @@ const matchIndentBase =
         matchedTokens.push(
           createTokenInstance(
             GRAMMAR_TOKENS.outdent,
-            "",
+            '',
             NaN,
             NaN,
             NaN,
             NaN,
             NaN,
-            NaN,
-          ),
+            NaN
+          )
         );
       }
       if (iStart === 1) {
@@ -142,12 +142,12 @@ export const { tokenList: GRAMMAR_TOKEN_LIST, tokenMap: GRAMMAR_TOKENS } =
     // indentation tokens must appear before Spaces, otherwise all indentation will always be consumed as spaces.
     // Outdent must appear before Indent for handling zero spaces outdents.
     outdent: {
-      pattern: matchIndentBase("outdent"),
+      pattern: matchIndentBase('outdent'),
       line_breaks: false,
       priority: 951,
     },
     indent: {
-      pattern: matchIndentBase("indent"),
+      pattern: matchIndentBase('indent'),
       line_breaks: false,
       priority: 950,
     },
@@ -171,40 +171,40 @@ export const { tokenList: GRAMMAR_TOKEN_LIST, tokenMap: GRAMMAR_TOKENS } =
     },
 
     true: {
-      pattern: "true",
+      pattern: 'true',
       priority: 250,
     },
     false: {
-      pattern: "false",
+      pattern: 'false',
       priority: 250,
     },
 
     pthOpen: {
-      pattern: "(",
+      pattern: '(',
       priority: 200,
     },
     pthClose: {
-      pattern: ")",
+      pattern: ')',
       priority: 200,
     },
     colon: {
-      pattern: ":",
+      pattern: ':',
       priority: 200,
     },
     asterisk: {
-      pattern: "*",
+      pattern: '*',
       priority: 200,
     },
     questionMark: {
-      pattern: "?",
+      pattern: '?',
       priority: 200,
     },
     pipe: {
-      pattern: "|",
+      pattern: '|',
       priority: 200,
     },
     plus: {
-      pattern: "+",
+      pattern: '+',
       priority: 200,
     },
 
@@ -222,22 +222,17 @@ const grammarLexer = new Lexer(GRAMMAR_TOKEN_LIST);
 
 export const tokenizeGrammar = (text: string) => {
   resetIndentStack();
-  const tokens = grammarLexer.tokenize(text);
+  /**
+   * We are trimming trailing spaces and newlines + consecutive empty lines
+   */
+  const preprocessedText = trimTextLines(text);
+  const tokens = grammarLexer.tokenize(preprocessedText.text);
 
   if (tokens.errors.length) {
     throw new Error(
-      `Failed to tokenize grammar file with ${tokens.errors.length} errors.`,
+      `Failed to tokenize grammar file with ${tokens.errors.length} errors.`
     );
   }
 
-  const tokenList = mergeConsecutive(
-    tokens.tokens,
-    (token) => (token.tokenType === GRAMMAR_TOKENS.nl ? "nl" : NaN),
-    (v) => v[0],
-  );
-
-  return {
-    ...tokens,
-    tokens: tokenList,
-  };
+  return tokens;
 };

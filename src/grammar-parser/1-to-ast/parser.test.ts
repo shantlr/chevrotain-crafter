@@ -1,8 +1,8 @@
-import { parseGrammarFileToAst } from ".";
+import { parseGrammarFileToAst } from '.';
 
-describe("1-to-ast/parser", () => {
-  describe("tokens", () => {
-    it("should parse root tokens field", () => {
+describe('1-to-ast/parser', () => {
+  describe('tokens', () => {
+    it('should parse root tokens field', () => {
       expect(parseGrammarFileToAst(`tokens:`)).toMatchInlineSnapshot(`
         [
           {
@@ -13,12 +13,12 @@ describe("1-to-ast/parser", () => {
       `);
     });
 
-    it("should parse empty tokens", () => {
+    it('should parse empty tokens', () => {
       expect(
         parseGrammarFileToAst(`tokens:
   token_1:
   token_2:
-  token_3:`),
+  token_3:`)
       ).toMatchInlineSnapshot(`
         [
           {
@@ -42,7 +42,7 @@ describe("1-to-ast/parser", () => {
       `);
     });
 
-    it("should parse tokens with options", () => {
+    it('should parse tokens with options', () => {
       expect(
         parseGrammarFileToAst(`tokens:
   token_1:
@@ -52,7 +52,7 @@ describe("1-to-ast/parser", () => {
     regex: /fuzzy/
   token_2:
     bool: true
-    `),
+    `)
       ).toMatchInlineSnapshot(`
         [
           {
@@ -79,20 +79,20 @@ describe("1-to-ast/parser", () => {
       `);
     });
 
-    describe("errors", () => {
-      it("should not parse options without newlines", () => {
+    describe('errors', () => {
+      it('should not parse options without newlines', () => {
         expect(() =>
           parseGrammarFileToAst(`tokens:
   token_1:
-    opt1: 1 opt2: 2 opt3: 3`),
+    opt1: 1 opt2: 2 opt3: 3`)
         ).toThrowError();
       });
     });
   });
 
-  describe("rules", () => {
-    it("should parse root rules field", () => {
-      expect(parseGrammarFileToAst("rules:")).toMatchInlineSnapshot(`
+  describe('rules', () => {
+    it('should parse root rules field', () => {
+      expect(parseGrammarFileToAst('rules:')).toMatchInlineSnapshot(`
         [
           {
             "name": "rules",
@@ -101,10 +101,10 @@ describe("1-to-ast/parser", () => {
         ]
       `);
     });
-    it("should parse basic single rule", () => {
+    it('should parse basic single rule', () => {
       expect(
         parseGrammarFileToAst(`rules:
-  rule_1: "hello" "world"`),
+  rule_1: "hello" "world"`)
       ).toMatchInlineSnapshot(`
         [
           {
@@ -130,11 +130,11 @@ describe("1-to-ast/parser", () => {
         ]
       `);
     });
-    it("should parse multiple empty rules", () => {
+    it('should parse multiple empty rules', () => {
       expect(
         parseGrammarFileToAst(`rules:
   rule_1:
-  rule_2:`),
+  rule_2:`)
       ).toMatchInlineSnapshot(`
         [
           {
@@ -153,10 +153,10 @@ describe("1-to-ast/parser", () => {
         ]
       `);
     });
-    it("should parse rule reference", () => {
+    it('should parse rule reference', () => {
       expect(
         parseGrammarFileToAst(`rules:
-  rule_1: rule_2`),
+  rule_1: rule_2`)
       ).toMatchInlineSnapshot(`
         [
           {
@@ -180,11 +180,11 @@ describe("1-to-ast/parser", () => {
         ]
       `);
     });
-    it("should parse rule multiple rules", () => {
+    it('should parse rule multiple rules', () => {
       expect(
         parseGrammarFileToAst(`rules:
   rule_1: "hello" rule_2
-  rule_2: "world" "."`),
+  rule_2: "world" "."`)
       ).toMatchInlineSnapshot(`
         [
           {
@@ -229,10 +229,10 @@ describe("1-to-ast/parser", () => {
       `);
     });
 
-    it("should parse pth", () => {
+    it('should parse pth', () => {
       expect(
         parseGrammarFileToAst(`rules:
-  rule_1: ("hello" "world")`),
+  rule_1: ("hello" "world")`)
       ).toMatchInlineSnapshot(`
         [
           {
@@ -267,12 +267,12 @@ describe("1-to-ast/parser", () => {
         ]
       `);
     });
-    it("should parse or", () => {
+    it('should parse or', () => {
       expect(
         parseGrammarFileToAst(`rules:
   rule_1:
     | "hello"
-    | "world"`),
+    | "world"`)
       ).toMatchInlineSnapshot(`
         [
           {
@@ -308,11 +308,11 @@ describe("1-to-ast/parser", () => {
       `);
     });
 
-    describe("modifier", () => {
-      it("should parse string with modifiers", () => {
+    describe('modifier', () => {
+      it('should parse string with modifiers', () => {
         expect(
           parseGrammarFileToAst(`rules:
-  rule_1: "hello"? "hello"+ "hello"*`),
+  rule_1: "hello"? "hello"+ "hello"*`)
         ).toMatchInlineSnapshot(`
           [
             {
@@ -344,10 +344,10 @@ describe("1-to-ast/parser", () => {
         `);
       });
 
-      it("should parse identifier with modifiers", () => {
+      it('should parse identifier with modifiers', () => {
         expect(
           parseGrammarFileToAst(`rules:
-  rule_1: rule_2? rule_3+ rule_4*`),
+  rule_1: rule_2? rule_3+ rule_4*`)
         ).toMatchInlineSnapshot(`
           [
             {
@@ -387,10 +387,10 @@ describe("1-to-ast/parser", () => {
           ]
         `);
       });
-      it("should parse pth with modifiers", () => {
+      it('should parse pth with modifiers', () => {
         expect(
           parseGrammarFileToAst(`rules:
-  rule_1: ("hello")? (rule_3)+ (rule_4)*`),
+  rule_1: ("hello")? (rule_3)+ (rule_4)*`)
         ).toMatchInlineSnapshot(`
           [
             {
@@ -454,10 +454,10 @@ describe("1-to-ast/parser", () => {
           ]
         `);
       });
-      it("should parse named with modifiers", () => {
+      it('should parse named with modifiers', () => {
         expect(
           parseGrammarFileToAst(`rules:
-  rule_1: param_1:("hello" )+`),
+  rule_1: param_1:("hello" )+`)
         ).toMatchInlineSnapshot(`
           [
             {
@@ -488,11 +488,11 @@ describe("1-to-ast/parser", () => {
         `);
       });
     });
-    describe("named", () => {
-      it("should parse named identifier", () => {
+    describe('named', () => {
+      it('should parse named identifier', () => {
         expect(
           parseGrammarFileToAst(`rules:
-  rule_1: name:rule_2`),
+  rule_1: name:rule_2`)
         ).toMatchInlineSnapshot(`
           [
             {
@@ -516,10 +516,10 @@ describe("1-to-ast/parser", () => {
           ]
         `);
       });
-      it("should parse named string", () => {
+      it('should parse named string', () => {
         expect(
           parseGrammarFileToAst(`rules:
-  rule_1: name:"hello"`),
+  rule_1: name:"hello"`)
         ).toMatchInlineSnapshot(`
           [
             {
@@ -540,10 +540,10 @@ describe("1-to-ast/parser", () => {
           ]
         `);
       });
-      it("should parse named pth", () => {
+      it('should parse named pth', () => {
         expect(
           parseGrammarFileToAst(`rules:
-  rule_1: name:("hello" "world")`),
+  rule_1: name:("hello" "world")`)
         ).toMatchInlineSnapshot(`
           [
             {
@@ -580,11 +580,11 @@ describe("1-to-ast/parser", () => {
       });
     });
 
-    describe("binary operator", () => {
-      it("should parse or binary", () => {
+    describe('binary operator', () => {
+      it('should parse or binary', () => {
         expect(
           parseGrammarFileToAst(`rules:
-  rule_1: "hello" | "world" | "fizbuzz"`),
+  rule_1: "hello" | "world" | "fizbuzz"`)
         ).toMatchInlineSnapshot(`
           [
             {
@@ -621,10 +621,10 @@ describe("1-to-ast/parser", () => {
         `);
       });
 
-      it("should parse or combinaison", () => {
+      it('should parse or combinaison', () => {
         expect(
           parseGrammarFileToAst(`rules:
-  rule_1: "hello" | "world" "center" "after" | "after-2" "then" "end"`),
+  rule_1: "hello" | "world" "center" "after" | "after-2" "then" "end"`)
         ).toMatchInlineSnapshot(`
           [
             {
@@ -688,8 +688,8 @@ describe("1-to-ast/parser", () => {
     });
   });
 
-  describe("both", () => {
-    it("should parse both", () => {
+  describe('both', () => {
+    it('should parse both', () => {
       expect(
         parseGrammarFileToAst(
           `tokens:
@@ -697,8 +697,8 @@ describe("1-to-ast/parser", () => {
 
 rules:
   rule_1: "hello" "world"`,
-          { debug: true },
-        ),
+          { debug: true }
+        )
       ).toMatchInlineSnapshot(`
         [
           {

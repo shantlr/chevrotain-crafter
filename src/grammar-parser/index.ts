@@ -1,4 +1,4 @@
-import { parseGrammarFileToAst } from "./1-to-ast";
+import { parseGrammarFileToAst } from './1-to-ast';
 
 export const parseGrammarFile = (
   fileText: string,
@@ -6,10 +6,10 @@ export const parseGrammarFile = (
     debug,
   }: {
     debug: boolean;
-  },
+  }
 ) => {
   const ast = parseGrammarFileToAst(fileText, {
     debug,
   });
-  console.log("ast", ast);
+  console.log('ast', ast);
 };

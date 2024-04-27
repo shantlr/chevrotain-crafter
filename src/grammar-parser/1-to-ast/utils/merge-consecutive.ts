@@ -1,7 +1,7 @@
 export const mergeConsecutive = <Item, Key, MergedItem = Item>(
   arr: Item[],
   itemToKey: (item: Item) => Key,
-  mergeItems: (items: Item[]) => MergedItem,
+  mergeItems: (items: Item[]) => MergedItem
 ) => {
   const result: Array<Item | MergedItem> = [];
   let lastKey: Key | undefined;

@@ -1,11 +1,11 @@
-import { type ILexingResult } from "chevrotain";
-import { tokenizeGrammar } from "./tokens";
+import { type ILexingResult } from 'chevrotain';
+import { tokenizeGrammar } from './tokens';
 
 const serializeToken = ({ tokens }: ILexingResult) =>
   tokens.map((t) => `${t.tokenType.name}:${JSON.stringify(t.image)}`);
 
-describe("1-to-ast/tokens", () => {
-  it("should parse tokens", () => {
+describe('1-to-ast/tokens', () => {
+  it('should parse tokens', () => {
     const tokens = tokenizeGrammar(`tokens:
   token_1: 123
   token_2: "hello" 'world'`);
@@ -27,7 +27,7 @@ describe("1-to-ast/tokens", () => {
     `);
   });
 
-  it("should differentiate identifier from number", () => {
+  it('should differentiate identifier from number', () => {
     const tokens = tokenizeGrammar(`id1 1 id2 123`);
     expect(serializeToken(tokens)).toMatchInlineSnapshot(`
       [
@@ -38,14 +38,14 @@ describe("1-to-ast/tokens", () => {
       ]
     `);
   });
-  describe("indent", () => {
-    it("should empty line", () => {
-      const tokens = tokenizeGrammar("");
+  describe('indent', () => {
+    it('should empty line', () => {
+      const tokens = tokenizeGrammar('');
       expect(tokens.tokens).toEqual([]);
     });
 
-    it("should parse only new line", () => {
-      const tokens = tokenizeGrammar("\n\n\n");
+    it('should parse only new line', () => {
+      const tokens = tokenizeGrammar('\n\n\n');
       expect(serializeToken(tokens)).toMatchInlineSnapshot(`
         [
           "nl:"\\n"",
@@ -55,7 +55,7 @@ describe("1-to-ast/tokens", () => {
       `);
     });
 
-    it("should parse indent", () => {
+    it('should parse indent', () => {
       const tokens = tokenizeGrammar(`  test`);
       expect(serializeToken(tokens)).toMatchInlineSnapshot(`
         [
@@ -64,7 +64,7 @@ describe("1-to-ast/tokens", () => {
         ]
       `);
     });
-    it("should parse double indent", () => {
+    it('should parse double indent', () => {
       const tokens = tokenizeGrammar(`test
   level2
     level3`);
@@ -81,7 +81,7 @@ describe("1-to-ast/tokens", () => {
       `);
     });
 
-    it("should parse outdent", () => {
+    it('should parse outdent', () => {
       const tokens = tokenizeGrammar(`test
   level1
 outdent`);
@@ -98,7 +98,7 @@ outdent`);
       `);
     });
 
-    it("should parse multiple level outdent", () => {
+    it('should parse multiple level outdent', () => {
       const tokens = tokenizeGrammar(`test
   level1
       level2
@@ -131,7 +131,7 @@ outdent`);
       `);
     });
 
-    it("should parse indent after outdent", () => {
+    it('should parse indent after outdent', () => {
       const tokens = tokenizeGrammar(`test
   level1
     level2
@@ -169,7 +169,7 @@ root`);
       `);
     });
 
-    it("should parse multiple of same indent", () => {
+    it('should parse multiple of same indent', () => {
       const tokens = tokenizeGrammar(`test
   level1
   level1

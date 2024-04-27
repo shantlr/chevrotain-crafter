@@ -3,12 +3,12 @@ import {
   type CstNode,
   type CstParser,
   type ParserMethod,
-} from "chevrotain";
+} from 'chevrotain';
 
-import { grammarParser } from "./parser";
-import { mergeConsecutive } from "./utils/merge-consecutive";
-import { flatten, last, reduce } from "lodash-es";
-import { GRAMMAR_TOKENS } from "./tokens";
+import { grammarParser } from './parser';
+import { mergeConsecutive } from './utils/merge-consecutive';
+import { flatten, last, reduce } from 'lodash-es';
+import { GRAMMAR_TOKENS } from './tokens';
 
 type ParserRuleKeys<P, Key = keyof P> = Key extends keyof P
   ? P[Key] extends ParserMethod<any, any>
@@ -23,7 +23,7 @@ export const createVisitor = <
   Visitors extends {
     [key in ParserRuleKeys<P>]?: (
       children: Record<string, Array<CstNode | IToken>>,
-      visit: (cst: CstNode) => any,
+      visit: (cst: CstNode) => any
     ) => any;
   },
 >(
@@ -31,7 +31,7 @@ export const createVisitor = <
   visitors: Visitors,
   opt?: {
     default?: (children: CstNode, visit: (cst: any) => any) => any;
-  },
+  }
 ) => {
   const visit = (node: CstNode) => {
     if (node.name in visitors) {
@@ -75,7 +75,7 @@ export const grammarCstToAst = createVisitor(grammarParser, {
       return visit(children.rules[0] as CstNode);
     }
     const name = (children.name[0] as IToken).image;
-    if (name === "tokens") {
+    if (name === 'tokens') {
       return {
         name,
         tokens: (children.tokens as CstNode[])?.map(visit) ?? [],
@@ -117,7 +117,7 @@ export const grammarCstToAst = createVisitor(grammarParser, {
     }
     if (children.identifier) {
       return {
-        type: "identifier",
+        type: 'identifier',
         value: (children.identifier[0] as IToken).image,
       };
     }
@@ -132,7 +132,7 @@ export const grammarCstToAst = createVisitor(grammarParser, {
 
   r_rules: (children, visit) => {
     return {
-      name: "rules",
+      name: 'rules',
       rules: (children.rules as CstNode[])?.map(visit) ?? [],
     };
   },
@@ -142,25 +142,25 @@ export const grammarCstToAst = createVisitor(grammarParser, {
       body: flatten(
         mergeConsecutive(
           (children.body as CstNode[]).map(visit).filter((v) => v != null),
-          (v) => (v?.type === "or_sequence" ? "or" : NaN),
+          (v) => (v?.type === 'or_sequence' ? 'or' : NaN),
           (orBranches) => ({
-            type: "or",
+            type: 'or',
             value: orBranches.map((v) => v.value),
-          }),
+          })
         ).map((v) =>
-          v?.type === "or_sequence"
+          v?.type === 'or_sequence'
             ? {
-                type: "or",
+                type: 'or',
                 value: [v.value],
               }
-            : v,
-        ),
+            : v
+        )
       ),
     };
   },
   r_rule_or_sequence: (children, visit) => {
     return {
-      type: "or_sequence",
+      type: 'or_sequence',
       value: visit(children.value[0] as CstNode),
     };
   },
@@ -184,12 +184,12 @@ export const grammarCstToAst = createVisitor(grammarParser, {
         const left = last(nodes);
         const right = rights[index] as CstNode;
         if (operator.tokenType === GRAMMAR_TOKENS.pipe) {
-          if (left.type === "or") {
+          if (left.type === 'or') {
             left.value.push(right);
           } else {
             nodes.pop();
             nodes.push({
-              type: "or",
+              type: 'or',
               value: [left, right],
             });
           }
@@ -199,7 +199,7 @@ export const grammarCstToAst = createVisitor(grammarParser, {
 
         return nodes;
       },
-      [initial],
+      [initial]
     );
     return res;
   },
@@ -213,13 +213,13 @@ export const grammarCstToAst = createVisitor(grammarParser, {
     }
 
     if (children.optional) {
-      modifier = "optional";
+      modifier = 'optional';
     }
     if (children.many) {
-      modifier = "many";
+      modifier = 'many';
     }
     if (children.many1) {
-      modifier = "many1";
+      modifier = 'many1';
     }
 
     if (value) {
@@ -240,13 +240,13 @@ export const grammarCstToAst = createVisitor(grammarParser, {
     }
     if (children.identifier) {
       return {
-        type: "ref",
+        type: 'ref',
         value: (children.identifier[0] as IToken).image,
       };
     }
     if (children.pth) {
       return {
-        type: "pth",
+        type: 'pth',
         value: visit(children.pth[0] as CstNode),
       };
     }

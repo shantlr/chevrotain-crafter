@@ -10,8 +10,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({baseDirectory: __dirname, recommendedConfig: pluginJs.configs.recommended});
 
-console.log(compat.extends("standard-with-typescript"))
-
 export default [
   {languageOptions: { globals: globals.node }},
   { files: ['src/**/*.ts'] },
@@ -22,7 +20,8 @@ export default [
       "@typescript-eslint/consistent-type-definitions": "off",
       "@typescript-eslint/strict-boolean-expressions": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
-      "@typescript-eslint/no-non-null-assertion": "off"
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/array-type": "off"
     }
   }
 ];

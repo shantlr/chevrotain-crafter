@@ -1,9 +1,9 @@
 export type GrammarAstNode =
   | {
-      type: "identifier";
+      type: 'identifier';
       value: string;
     }
   | {
-      type: "object";
+      type: 'object';
       fields: Record<string, string | number | GrammarAstNode>;
     };

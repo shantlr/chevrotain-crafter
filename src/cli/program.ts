@@ -1,14 +1,14 @@
-import { Command } from "commander";
-import { readFile } from "fs/promises";
-import { parseGrammarFile } from "../grammar-parser";
+import { Command } from 'commander';
+import { readFile } from 'fs/promises';
+import { parseGrammarFile } from '../grammar-parser';
 
 export const prog = new Command();
 
 prog
-  .command("parse <file>", {
+  .command('parse <file>', {
     isDefault: true,
   })
-  .option("-d, --debug", "output extra debugging")
+  .option('-d, --debug', 'output extra debugging')
   .action(async (filePath, options) => {
     const fileText = (await readFile(filePath as string)).toString();
     parseGrammarFile(fileText, {
