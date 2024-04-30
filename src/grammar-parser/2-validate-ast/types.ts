@@ -8,5 +8,11 @@ export type GrammarToken = {
 
 export type GrammarRule = {
   name: string;
+
+  /**
+   * name to use as generated method
+   */
+  methodName: string;
+
   astBody: GrammarRuleNode['body'];
 };

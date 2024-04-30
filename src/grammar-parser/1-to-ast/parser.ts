@@ -237,21 +237,26 @@ export class GrammarParser extends CstParser {
   });
 
   r_rule_body_expr_binary = this.RULE('r_rule_body_expr_binary', () => {
-    this.SUBRULE(this.r_rule_body_expr_unary, {
-      LABEL: 'left',
+    this.AT_LEAST_ONE(() => {
+      this.SUBRULE(this.r_rule_body_expr_unary, {
+        LABEL: 'elems',
+      });
     });
     this.MANY(() => {
       this.OR([
         {
           ALT: () => {
             this.CONSUME(GRAMMAR_TOKENS.pipe, {
-              LABEL: 'operator',
+              LABEL: 'elems',
+              // LABEL: 'operator',
             });
           },
         },
       ]);
-      this.SUBRULE1(this.r_rule_body_expr_unary, {
-        LABEL: 'right',
+      this.AT_LEAST_ONE1(() => {
+        this.SUBRULE1(this.r_rule_body_expr_unary, {
+          LABEL: 'elems',
+        });
       });
     });
   });

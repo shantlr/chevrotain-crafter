@@ -7,8 +7,8 @@ import {
 
 import { grammarParser } from './parser';
 import { mergeConsecutive } from './utils/merge-consecutive';
-import { flatten, last, reduce } from 'lodash-es';
-import { GRAMMAR_TOKENS } from './tokens';
+import { flatten } from 'lodash-es';
+import { splitBy } from '../../lib/utils/split-by';
 
 type ParserRuleKeys<P, Key = keyof P> = Key extends keyof P
   ? P[Key] extends ParserMethod<any, any>
@@ -156,33 +156,18 @@ export const grammarCstToAst = createVisitor(grammarParser, {
   },
 
   r_rule_body_expr_binary: (children, visit) => {
-    const initial = visit(children.left[0] as CstNode);
-    const rights = (children.right as CstNode[])?.map(visit);
+    const groups = splitBy(
+      children.elems,
+      (e) => (e as { name?: string }).name !== 'r_rule_body_expr_unary'
+    ).map((group) => (group as CstNode[]).map(visit));
+    if (groups.length === 1) {
+      return groups[0];
+    }
 
-    const res = reduce(
-      (children.operator as IToken[]) ?? [],
-      (nodes, operator, index) => {
-        const left = last(nodes);
-        const right = rights[index] as CstNode;
-        if (operator.tokenType === GRAMMAR_TOKENS.pipe) {
-          if (left.type === 'or') {
-            left.value.push(right);
-          } else {
-            nodes.pop();
-            nodes.push({
-              type: 'or',
-              value: [left, right],
-            });
-          }
-        } else {
-          nodes.push();
-        }
-
-        return nodes;
-      },
-      [initial]
-    );
-    return res;
+    return {
+      type: 'or',
+      value: groups,
+    };
   },
 
   r_rule_body_expr_unary: (children, visit) => {
@@ -214,10 +199,10 @@ export const grammarCstToAst = createVisitor(grammarParser, {
   },
   r_rule_body_expr_scalar: (children, visit) => {
     if (children.singleQuoteString) {
-      return (children.singleQuoteString[0] as IToken).image;
+      return (children.singleQuoteString[0] as IToken).image.slice(1, -1);
     }
     if (children.doubleQuoteString) {
-      return (children.doubleQuoteString[0] as IToken).image;
+      return (children.doubleQuoteString[0] as IToken).image.slice(1, -1);
     }
     if (children.identifier) {
       return {

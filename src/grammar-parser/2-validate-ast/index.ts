@@ -76,7 +76,7 @@ const validateInlineTokens = (
   } else {
     const value = elem.value;
     if (typeof value === 'string') {
-      const name = `inline:${value}`;
+      const name = `${value}`;
       return {
         [name]: {
           name,
@@ -157,6 +157,7 @@ const validateRules = (
 
       mergedRules[rule.name] = {
         name: rule.name,
+        methodName: `r_${rule.name.replace(/-/g, '_')}`,
         astBody: rule.body,
       };
     }

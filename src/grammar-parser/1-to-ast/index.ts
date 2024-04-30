@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import { grammarParser } from './parser';
 import { grammarCstToAst } from './cst-to-ast';
 import { tokenizeGrammar } from './tokens';
+import { type GrammarRootNode } from './types';
 
 const logLexError = (text: string, err: ILexingError) => {
   console.log(err);
@@ -91,5 +92,5 @@ export const parseGrammarFileToAst = (
 
   const ast = grammarCstToAst(cst);
   // console.log(">>", JSON.stringify(ast, null, 2));
-  return ast;
+  return ast as GrammarRootNode;
 };
