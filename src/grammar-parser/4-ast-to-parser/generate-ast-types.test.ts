@@ -1,4 +1,4 @@
-import { generateAstTypes } from './generate-ast-types';
+import { generateTypes } from './generate-types';
 
 describe('3-ast-to-parser/generate-ast-types', () => {
   it('should', () => {

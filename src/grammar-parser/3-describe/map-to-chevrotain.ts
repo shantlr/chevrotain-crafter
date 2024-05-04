@@ -1,4 +1,4 @@
-import { mapValues } from 'lodash-es';
+import { camelCase, mapValues, upperFirst } from 'lodash-es';
 import { type GrammarRuleSeqNode } from '../1-to-ast/types';
 import { type GrammarToken, type GrammarRule } from '../2-validate-ast/types';
 import {
@@ -134,17 +134,24 @@ const mergeObjectType = (
 };
 
 const mapNodeToChevrotainCalls = ({
+  typeNamePrefix,
   node,
   tokens,
   rules,
 }: {
+  typeNamePrefix: string;
   node: GrammarRuleSeqNode | GrammarRuleSeqNode[];
   tokens: Record<string, GrammarToken>;
   rules: Record<string, GrammarRule>;
 }): RuleBodyDesc => {
   if (Array.isArray(node)) {
     const tests = node.map((n) =>
-      mapNodeToChevrotainCalls({ node: n, tokens, rules })
+      mapNodeToChevrotainCalls({
+        typeNamePrefix,
+        node: n,
+        tokens,
+        rules,
+      })
     );
 
     const cstOutputType = tests
@@ -157,16 +164,16 @@ const mapNodeToChevrotainCalls = ({
         value: tests.map((t) => t.chevrotain),
       },
       parseOutputType: mergeObjectType(
-        '',
+        `RuleCst_${typeNamePrefix}`,
         tests.map((t) => t.parseOutputType)
       ),
 
       cstOutputType:
         cstOutputType.length > 0
-          ? mergeObjectType('', cstOutputType)
+          ? mergeObjectType(`Rule_${typeNamePrefix}`, cstOutputType)
           : undefined,
       cstOutputTypeDefault: mergeObjectType(
-        '',
+        `Rule_${typeNamePrefix}`,
         tests.map((t) => t.cstOutputTypeDefault)
       ),
     };
@@ -174,7 +181,7 @@ const mapNodeToChevrotainCalls = ({
 
   if (isOrNode(node)) {
     const tests = node.value.map((n) =>
-      mapNodeToChevrotainCalls({ node: n, tokens, rules })
+      mapNodeToChevrotainCalls({ typeNamePrefix, node: n, tokens, rules })
     );
     const cstOutputType = tests
       .map((t) => t.cstOutputType)
@@ -211,7 +218,7 @@ const mapNodeToChevrotainCalls = ({
       },
       parseOutputType: {
         type: 'object',
-        typeName: '',
+        typeName: ``,
         fields: {
           [node.name ?? node.value]: {
             type: 'chevrotainToken',
@@ -319,6 +326,7 @@ const mapNodeToChevrotainCalls = ({
     }
   } else if (isGroupNode(node)) {
     const tests = mapNodeToChevrotainCalls({
+      typeNamePrefix,
       node: node.value.value,
       tokens,
       rules,
@@ -352,6 +360,10 @@ const mapNodeToChevrotainCalls = ({
   return res;
 };
 
+const mapRuleNameToType = (ruleName: string): string => {
+  return upperFirst(camelCase(ruleName));
+};
+
 export const mapRuleToChevrotain = ({
   rule,
   rules,
@@ -361,6 +373,11 @@ export const mapRuleToChevrotain = ({
   rules: Record<string, GrammarRule>;
   tokens: Record<string, GrammarToken>;
 }): RuleBodyDesc => {
-  const node = mapNodeToChevrotainCalls({ node: rule.astBody, tokens, rules });
+  const node = mapNodeToChevrotainCalls({
+    typeNamePrefix: mapRuleNameToType(rule.name),
+    node: rule.astBody,
+    tokens,
+    rules,
+  });
   return node;
 };

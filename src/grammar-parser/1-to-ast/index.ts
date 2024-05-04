@@ -79,8 +79,6 @@ export const parseGrammarFileToAst = (
   grammarParser.input = tokens.tokens;
   const cst = applyParser(grammarParser);
 
-  // console.log(JSON.stringify(cst, null, 2));
-
   if (grammarParser.errors.length) {
     if (debug) {
       grammarParser.errors.forEach((err) => {
@@ -91,6 +89,5 @@ export const parseGrammarFileToAst = (
   }
 
   const ast = grammarCstToAst(cst);
-  // console.log(">>", JSON.stringify(ast, null, 2));
   return ast as GrammarRootNode;
 };
