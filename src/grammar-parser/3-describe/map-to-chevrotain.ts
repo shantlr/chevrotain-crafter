@@ -80,7 +80,7 @@ const applyModifier = (
           type: 'many',
           value: node.chevrotain,
         },
-        parseOutputType: applyMany(node.parseOutputType),
+        parseOutputType: node.parseOutputType,
         cstOutputType: node.cstOutputType
           ? applyMany(node.cstOutputType)
           : undefined,
@@ -92,7 +92,7 @@ const applyModifier = (
           type: 'many1',
           value: node.chevrotain,
         },
-        parseOutputType: applyMany1(node.parseOutputType),
+        parseOutputType: node.parseOutputType,
         cstOutputType: node.cstOutputType
           ? applyMany1(node.cstOutputType)
           : undefined,
@@ -220,8 +220,12 @@ const mapNodeToChevrotainCalls = ({
         type: 'object',
         typeName: ``,
         fields: {
+          // NOTE: chevrotain output are always array
           [node.name ?? node.value]: {
-            type: 'chevrotainToken',
+            type: 'array',
+            elementType: {
+              type: 'chevrotainToken',
+            },
           },
         },
       },
@@ -257,7 +261,10 @@ const mapNodeToChevrotainCalls = ({
           typeName: ``,
           fields: {
             [node.name ?? token.name]: {
-              type: 'chevrotainToken',
+              type: 'array',
+              elementType: {
+                type: 'chevrotainToken',
+              },
             },
           },
         },
@@ -295,8 +302,11 @@ const mapNodeToChevrotainCalls = ({
           typeName: '',
           fields: {
             [node.name ?? rule.methodName]: {
-              type: 'ruleRef',
-              ruleName: rule.name,
+              type: 'array',
+              elementType: {
+                type: 'ruleRef',
+                ruleName: rule.name,
+              },
             },
           },
         },

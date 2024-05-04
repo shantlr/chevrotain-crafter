@@ -14,18 +14,18 @@ export const astToOutputParser = ({
   ruleDescs: Record<string, RuleDesc>;
   writer: IWriter;
 }) => {
+  generateTypes({
+    tokens,
+    ruleDescs,
+    writer,
+  });
+
   generateLexer({
     tokens,
     writer,
   });
 
   generateParser({
-    tokens,
-    ruleDescs,
-    writer,
-  });
-
-  generateTypes({
     tokens,
     ruleDescs,
     writer,

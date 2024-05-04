@@ -95,9 +95,18 @@ export const generateParser = ({
   ruleDescs: Record<string, RuleDesc>;
   writer: IWriter;
 }) => {
+  const rootRule = ruleDescs.start;
+
+  if (!rootRule) {
+    throw new Error(`Root rule "start" not found`);
+  }
+
+  const CstRootType = rootRule.body.parseOutputType.typeName;
+
   const content: string[] = [
     `import { CstParser, IToken } from 'chevrotain';`,
     `import { TOKENS } from './lexer';`,
+    `import type { ${CstRootType} } from './types';`,
     '',
     `class Parser extends CstParser {`,
     ...map(ruleDescs, ({ rule, body }) => {
@@ -123,7 +132,7 @@ export const generateParser = ({
     `  if (parser.errors.length) {`,
     `  }`,
     '',
-    `  return cst;`,
+    `  return cst as ${CstRootType};`,
     `}`,
   ];
 

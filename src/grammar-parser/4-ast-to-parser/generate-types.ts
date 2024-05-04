@@ -31,22 +31,18 @@ const serializeType = ({
     return `${serializeType({ type: type.elementType, ruleTypeNames, indentLevel })}[]`;
   }
   if (type.type === 'chevrotainToken') {
-    return `TokenType`;
+    return `IToken`;
   }
 
   if (type.type === 'or') {
-    return map(
-      type.branch,
-      (o) => {
-        const formattedType = serializeType({
-          type: o,
-          ruleTypeNames,
-          indentLevel,
-        });
-        return `\n${indent(indentLevel)}| ${formattedType}`;
-      }
-      // `${indent(indentLevel)}| ${serializeType({ type: o, ruleTypeNames, indentLevel })}`
-    ).join('');
+    return map(type.branch, (o) => {
+      const formattedType = serializeType({
+        type: o,
+        ruleTypeNames,
+        indentLevel,
+      });
+      return `\n${indent(indentLevel)}| ${formattedType}`;
+    }).join('');
   }
 
   if (type.type === 'ruleRef') {
@@ -69,7 +65,7 @@ export const generateTypes = ({
   ruleDescs: Record<string, RuleDesc>;
   writer: IWriter;
 }) => {
-  const content: string[] = [`import { TokenType } from 'chevrotain';`, ''];
+  const content: string[] = [`import { IToken } from 'chevrotain';`, ''];
 
   for (const [, ruleDesc] of Object.entries(ruleDescs)) {
     const type = ruleDesc.body.parseOutputType;
