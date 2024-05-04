@@ -3,6 +3,7 @@ import {
   type GrammarRuleSeqNode,
 } from '../1-to-ast/types';
 import { type GrammarRule, type GrammarToken } from './types';
+import { isGroupNode, isLiteralNode, isOrNode, isRefNode } from './utils';
 
 const KNOWN_TOKEN_OPTION = ['pattern', 'group'];
 
@@ -61,10 +62,7 @@ const validateInlineTokens = (
   elem: GrammarRuleSeqNode,
   allRules: Record<string, GrammarRule>
 ): Record<string, GrammarToken> => {
-  // const errors: string[] = [];
-  // const warnings: string[] = [];
-
-  if ('type' in elem) {
+  if (isOrNode(elem)) {
     const res: Record<string, GrammarToken> = {};
     for (const branch of elem.value) {
       for (const e of branch) {
@@ -73,27 +71,31 @@ const validateInlineTokens = (
       }
     }
     return res;
-  } else {
-    const value = elem.value;
-    if (typeof value === 'string') {
-      const name = `${value}`;
-      return {
-        [name]: {
-          name,
-          pattern: value,
-        },
-      };
-    } else if (value.type === 'pth') {
-      const res: Record<string, GrammarToken> = {};
-      for (const elem of value.value) {
-        Object.assign(res, validateInlineTokens(elem, allRules));
-      }
-      return res;
+  }
+
+  if (isLiteralNode(elem)) {
+    const name = `${elem.value}`;
+    return {
+      [name]: {
+        name,
+        pattern: elem.value,
+      },
+    };
+  }
+
+  if (isGroupNode(elem)) {
+    const res: Record<string, GrammarToken> = {};
+    for (const e of elem.value.value) {
+      Object.assign(res, validateInlineTokens(e, allRules));
     }
+    return res;
   }
   return {};
 };
 
+/**
+ * Check that references exists
+ */
 const validateRuleBody = (
   rule: GrammarRule,
   elem: GrammarRuleSeqNode,
@@ -102,28 +104,25 @@ const validateRuleBody = (
 ) => {
   const errors: string[] = [];
 
-  if ('type' in elem) {
+  if (isOrNode(elem)) {
     for (const branch of elem.value) {
       for (const e of branch) {
         validateRuleBody(rule, e, allRules, tokens);
       }
     }
-  } else {
-    const value = elem.value;
+  }
 
-    if (typeof value === 'string') {
-      //
-    } else if ('type' in value && value.type === 'ref') {
-      const refName = value.value;
-      if (!allRules[refName] && tokens[refName]) {
-        errors.push(
-          `Rule ${rule.name} references unknown rule or token '${refName}'`
-        );
-      }
-    } else if (value.type === 'pth') {
-      for (const elem of value.value) {
-        validateRuleBody(rule, elem, allRules, tokens);
-      }
+  if (isRefNode(elem)) {
+    const refName = elem.value.value;
+    if (!allRules[refName] && tokens[refName]) {
+      errors.push(
+        `Rule ${rule.name} references unknown rule or token '${refName}'`
+      );
+    }
+  }
+  if (isGroupNode(elem)) {
+    for (const e of elem.value.value) {
+      validateRuleBody(rule, e, allRules, tokens);
     }
   }
 };
@@ -170,7 +169,8 @@ const validateRules = (
       Object.assign(mergedTokens, additionalTokens);
     }
   }
-  // assert references
+
+  // assert references exists
   for (const [, rule] of Object.entries(mergedRules)) {
     for (const elem of rule.astBody) {
       validateRuleBody(rule, elem, mergedRules, tokens);
@@ -186,6 +186,10 @@ const validateRules = (
   };
 };
 
+/**
+ * Validate tokens and rules are valid
+ * Load inlined tokens into tokens record
+ */
 export const validateGrammarAst = (ast: GrammarRootNode) => {
   const parsedTokens = validateTokens(ast);
   parsedTokens.warnings.forEach((warning) => {

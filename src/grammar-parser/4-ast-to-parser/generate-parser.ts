@@ -1,10 +1,8 @@
 import { map } from 'lodash-es';
-import { type GrammarRule, type GrammarToken } from '../2-validate-ast/types';
+import { type GrammarToken } from '../2-validate-ast/types';
 import { type IWriter } from '../types';
-import { mapBodyToChevrotainCalls } from './map-rule-body-to-chev-calls';
-import { type ChevrotainNode } from './types';
-
-const indent = (n: number) => '  '.repeat(n);
+import { indent } from '../utils/indent';
+import { type ChevrotainNode, type RuleDesc } from '../3-describe/types';
 
 type SignatureCount = Record<string, number>;
 
@@ -21,7 +19,10 @@ const serializeChevrotainCalls = (
       const signature = `CONSUME:${call.tokenName}`;
       const method = formatCall('CONSUME', signatureCount[signature] ?? 0);
       signatureCount[signature] = (signatureCount[signature] || 0) + 1;
-      return `${indent(i)}this.${method}(TOKENS[${JSON.stringify(call.tokenName)}]);`;
+
+      const option = call.label ? `, { LABEL: '${call.label}' }` : '';
+
+      return `${indent(i)}this.${method}(TOKENS[${JSON.stringify(call.tokenName)}]${option});`;
     }
     case 'seq':
       return call.value
@@ -31,6 +32,7 @@ const serializeChevrotainCalls = (
       const signature = `OR`;
       const method = formatCall('OR', signatureCount[signature] ?? 0);
       signatureCount[signature] = (signatureCount[signature] || 0) + 1;
+
       return [
         `${indent(i)}this.${method}([`,
         ...call.value.map((v) =>
@@ -71,11 +73,13 @@ const serializeChevrotainCalls = (
       ].join('\n');
     }
     case 'subrule': {
-      const signature = `SUBRULE:${call.ruleName}`;
+      const signature = `SUBRULE:${call.ruleMethodName}`;
       const method = formatCall('SUBRULE', signatureCount[signature] ?? 0);
       signatureCount[signature] = (signatureCount[signature] || 0) + 1;
 
-      return `${indent(i)}this.${method}(this.${call.ruleName});`;
+      const option = call.label ? `, { LABEL: '${call.label}' }` : '';
+
+      return `${indent(i)}this.${method}(this.${call.ruleMethodName}${option});`;
     }
     default:
   }
@@ -83,12 +87,12 @@ const serializeChevrotainCalls = (
 };
 
 export const generateParser = ({
-  rules,
+  ruleDescs,
   tokens,
   writer,
 }: {
   tokens: Record<string, GrammarToken>;
-  rules: Record<string, GrammarRule>;
+  ruleDescs: Record<string, RuleDesc>;
   writer: IWriter;
 }) => {
   const content: string[] = [
@@ -96,17 +100,12 @@ export const generateParser = ({
     `import { TOKENS } from './lexer';`,
     '',
     `class Parser extends CstParser {`,
-    ...map(rules, (rule) => {
-      const body = mapBodyToChevrotainCalls({
-        body: rule.astBody,
-        rules,
-        tokens,
-      });
-      const ruleName = rule.methodName;
+    ...map(ruleDescs, ({ rule, body }) => {
+      const name = rule.methodName;
       return [
-        `  ${ruleName} = this.RULE('${ruleName}', () => {`,
-        serializeChevrotainCalls(body, 2),
-        `  });`,
+        ` ${name} = this.RULE('${name}', () => {`,
+        serializeChevrotainCalls(body.chevrotain, 2),
+        ` });`,
       ].join('\n');
     }),
     '',

@@ -1,28 +1,34 @@
-import { type GrammarRule, type GrammarToken } from '../2-validate-ast/types';
+import { type GrammarToken } from '../2-validate-ast/types';
+import { type RuleDesc } from '../3-describe/types';
 import { type IWriter } from '../types';
 import { generateLexer } from './generate-lexer';
 import { generateParser } from './generate-parser';
 
 export const astToOutputParser = ({
-  rules,
+  ruleDescs,
   tokens,
   writer,
 }: {
   tokens: Record<string, GrammarToken>;
-  rules: Record<string, GrammarRule>;
+  ruleDescs: Record<string, RuleDesc>;
   writer: IWriter;
 }) => {
   generateLexer({
     tokens,
-    rules,
     writer,
   });
 
   generateParser({
     tokens,
-    rules,
+    ruleDescs,
     writer,
   });
+
+  // generateAstTypes({
+  //   tokens,
+  //   rules,
+  //   writer,
+  // });
 
   writer.writeFile(
     'index.ts',

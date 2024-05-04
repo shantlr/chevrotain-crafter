@@ -1,14 +1,12 @@
 import { map } from 'lodash-es';
-import { type GrammarRule, type GrammarToken } from '../2-validate-ast/types';
+import { type GrammarToken } from '../2-validate-ast/types';
 import { type IWriter } from '../types';
 
 export const generateLexer = ({
-  rules,
   tokens,
   writer,
 }: {
   tokens: Record<string, GrammarToken>;
-  rules: Record<string, GrammarRule>;
   writer: IWriter;
 }) => {
   const content: string[] = [
@@ -18,7 +16,7 @@ export const generateLexer = ({
       tokens,
       (t) => `  [${JSON.stringify(t.name)}]: createToken({
     name: ${JSON.stringify(t.name)},
-    pattern: ${t.pattern},
+    pattern: ${typeof t.pattern === 'string' ? JSON.stringify(t.pattern) : t.pattern},
   }),`
     ),
     `};`,

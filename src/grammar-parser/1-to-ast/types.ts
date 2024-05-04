@@ -31,6 +31,8 @@ export type GrammarRuleNode = {
   name: string;
   body: GrammarRuleSeqNode[];
 };
+export type GrammarRuleBodyAnyNode = GrammarRuleSeqNode[] | GrammarRuleSeqNode;
+
 export type GrammarRuleSeqNode = GrammarRuleElemNode | GrammarRuleOrNode;
 export type GrammarRuleOrNode = {
   type: 'or';
@@ -48,5 +50,5 @@ export type GrammarRuleRefElemNode = {
 };
 export type GrammarRuleNodeElemGroup = {
   type: 'pth';
-  value: GrammarRuleElemNode[];
+  value: GrammarRuleSeqNode[];
 };

@@ -1,6 +1,7 @@
 import { parseGrammarFileToAst } from './1-to-ast';
 import { validateGrammarAst } from './2-validate-ast';
-import { astToOutputParser } from './3-ast-to-parser';
+import { describeRules } from './3-describe';
+import { astToOutputParser } from './4-ast-to-parser';
 
 export const parseGrammarFile = (
   fileText: string,
@@ -18,9 +19,14 @@ export const parseGrammarFile = (
     return;
   }
 
+  const describes = describeRules({
+    rules: validated.rules,
+    tokens: validated.tokens,
+  });
+
   astToOutputParser({
     tokens: validated.tokens,
-    rules: validated.rules,
+    ruleDescs: describes.ruleDescs,
     writer: {
       writeFile: (path, content) => {
         console.log(`//> ${path}`);
