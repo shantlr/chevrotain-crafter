@@ -7,11 +7,17 @@ export type TypeDesc =
   | TypeDescOptional
   | TypeDescRuleRef
   | TypeDescArray
+  | TypeDescLiteral
   | 'string';
 
-type TypeDescRuleRef = {
+export type TypeDescRuleRef = {
   type: 'ruleRef';
   ruleName: string;
+};
+
+export type TypeDescLiteral = {
+  type: 'literal';
+  value: string;
 };
 
 type TypeDescChevrotainToken = {

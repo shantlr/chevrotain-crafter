@@ -389,5 +389,25 @@ export const mapRuleToChevrotain = ({
     tokens,
     rules,
   });
-  return node;
+
+  return {
+    ...node,
+    parseOutputType: {
+      type: 'object',
+      typeName: `RuleCst_${mapRuleNameToType(rule.name)}`,
+      fields: {
+        name: {
+          type: 'literal',
+          value: rule.methodName,
+        },
+        children: {
+          type: 'object',
+          typeName: '',
+          fields: {
+            ...node.parseOutputType.fields,
+          },
+        },
+      },
+    },
+  };
 };
