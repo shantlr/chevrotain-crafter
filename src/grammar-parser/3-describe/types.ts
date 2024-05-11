@@ -8,7 +8,11 @@ export type TypeDesc =
   | TypeDescRuleRef
   | TypeDescArray
   | TypeDescLiteral
-  | 'string';
+  | TypeDescString;
+
+export type TypeDescString = {
+  type: 'string';
+};
 
 export type TypeDescRuleRef = {
   type: 'ruleRef';
@@ -20,8 +24,9 @@ export type TypeDescLiteral = {
   value: string;
 };
 
-type TypeDescChevrotainToken = {
+export type TypeDescChevrotainToken = {
   type: 'chevrotainToken';
+  tokenName: string;
 };
 export type TypeDescObj = {
   typeName: string;

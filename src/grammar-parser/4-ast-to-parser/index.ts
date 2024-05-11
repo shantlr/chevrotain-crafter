@@ -4,6 +4,7 @@ import { type IWriter } from '../types';
 import { generateTypes } from './generate-types';
 import { generateLexer } from './generate-lexer';
 import { generateParser } from './generate-parser';
+import { generateCstToAst } from './generate-cst-ast';
 
 export const astToOutputParser = ({
   ruleDescs,
@@ -14,21 +15,39 @@ export const astToOutputParser = ({
   ruleDescs: Record<string, RuleDesc>;
   writer: IWriter;
 }) => {
+  const rootRule = ruleDescs.start;
+
+  if (!rootRule) {
+    throw new Error(`Root rule "start" not found`);
+  }
+
+  const rootCstTypeName = rootRule.body.parseOutputType.typeName;
+
   generateTypes({
     tokens,
     ruleDescs,
     writer,
   });
 
-  generateLexer({
-    tokens,
-    writer,
-  });
+  // generateLexer({
+  //   tokens,
+  //   writer,
+  // });
 
-  generateParser({
+  // generateParser({
+  //   tokens,
+  //   ruleDescs,
+  //   writer,
+
+  //   rootCstTypeName,
+  // });
+
+  generateCstToAst({
     tokens,
     ruleDescs,
     writer,
+
+    rootCstTypeName,
   });
 
   writer.writeFile(
@@ -36,7 +55,7 @@ export const astToOutputParser = ({
     [
       `import { tokenizeText } from './lexer`,
       `import { parseTextToCst } from './parser';`,
-      `import { mapCstToAst } from './to-ast';`,
+      `import { mapCstToAst } from './cst-to-ast';`,
       '',
       'export const parse = (text: string) => {',
       '  const tokens = tokenizeText(text);',

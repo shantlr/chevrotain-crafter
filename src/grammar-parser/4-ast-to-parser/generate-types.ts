@@ -13,47 +13,50 @@ const serializeType = ({
   ruleTypeNames: Record<string, string>;
   indentLevel: number;
 }): string => {
-  if (type === 'string') {
-    return 'string';
-  }
-
-  if (type.type === 'object') {
-    const content = [
-      '{',
-      ...map(type.fields, (f, name) => {
-        return `${indent(indentLevel)}${formatFieldName(name)}: ${serializeType({ type: f, ruleTypeNames, indentLevel: indentLevel + 1 })};`;
-      }),
-      `${indent(indentLevel - 1)}}`,
-    ];
-    return content.join('\n');
-  }
-  if (type.type === 'array') {
-    return `${serializeType({ type: type.elementType, ruleTypeNames, indentLevel })}[]`;
-  }
-  if (type.type === 'chevrotainToken') {
-    return `IToken`;
-  }
-
-  if (type.type === 'or') {
-    return map(type.branch, (o) => {
-      const formattedType = serializeType({
-        type: o,
-        ruleTypeNames,
-        indentLevel,
-      });
-      return `\n${indent(indentLevel)}| ${formattedType}`;
-    }).join('');
-  }
-
-  if (type.type === 'ruleRef') {
-    if (!ruleTypeNames[type.ruleName]) {
-      throw new Error(`Rule '${type.ruleName}' not found`);
+  switch (type.type) {
+    case 'string': {
+      return 'string';
     }
+    case 'object': {
+      const content = [
+        '{',
+        ...map(type.fields, (f, name) => {
+          return `${indent(indentLevel)}${formatFieldName(name)}: ${serializeType({ type: f, ruleTypeNames, indentLevel: indentLevel + 1 })};`;
+        }),
+        `${indent(indentLevel - 1)}}`,
+      ];
+      return content.join('\n');
+    }
+    case 'array': {
+      return `${serializeType({ type: type.elementType, ruleTypeNames, indentLevel })}[]`;
+    }
+    case 'or': {
+      return map(type.branch, (o) => {
+        const formattedType = serializeType({
+          type: o,
+          ruleTypeNames,
+          indentLevel,
+        });
+        return `\n${indent(indentLevel)}| ${formattedType}`;
+      }).join('');
+    }
+    case 'chevrotainToken': {
+      return `IToken`;
+    }
+    case 'ruleRef': {
+      if (!ruleTypeNames[type.ruleName]) {
+        throw new Error(`Rule '${type.ruleName}' not found`);
+      }
 
-    return ruleTypeNames[type.ruleName];
+      return ruleTypeNames[type.ruleName];
+    }
+    case 'literal': {
+      return `'${type.value}'`;
+    }
+    default:
   }
 
-  return '';
+  throw new Error(`Unhandled serialize type desc '${JSON.stringify(type)}'`);
 };
 
 export const generateTypes = ({
