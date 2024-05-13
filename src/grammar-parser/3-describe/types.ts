@@ -29,13 +29,11 @@ export type TypeDescChevrotainToken = {
   tokenName: string;
 };
 export type TypeDescObj = {
-  typeName: string;
   type: 'object';
   fields: Record<string, TypeDesc>;
 };
 export type TypeDescOr = {
   type: 'or';
-  typeName: string;
   branch: TypeDesc[];
 };
 
@@ -104,11 +102,13 @@ export type RuleBodyDesc = {
    */
   chevrotain: ChevrotainNode;
 
+  parseOutputTypeName: string;
   /**
    * Chevrotain rule parse output type
    */
   parseOutputType: TypeDescObj;
 
+  cstOutputTypeName: string;
   /**
    * cst output type if there are named elements
    */

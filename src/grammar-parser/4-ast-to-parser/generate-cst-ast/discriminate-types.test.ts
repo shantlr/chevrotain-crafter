@@ -33,17 +33,23 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           "else": {
             "type": "resolve",
-            "value": 2,
+            "value": {
+              "typeIndex": 2,
+            },
           },
           "then": {
             "type": "resolve",
-            "value": 1,
+            "value": {
+              "typeIndex": 1,
+            },
           },
           "type": "ternary",
         },
         "then": {
           "type": "resolve",
-          "value": 0,
+          "value": {
+            "typeIndex": 0,
+          },
         },
         "type": "ternary",
       }
@@ -56,7 +62,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
         possibleTypes: [
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field1: {
                 type: 'chevrotainToken',
@@ -66,7 +71,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field1: {
                 type: 'chevrotainToken',
@@ -89,11 +93,15 @@ describe('4-ast-to-parser/discriminate-types', () => {
         },
         "else": {
           "type": "resolve",
-          "value": 1,
+          "value": {
+            "typeIndex": 1,
+          },
         },
         "then": {
           "type": "resolve",
-          "value": 0,
+          "value": {
+            "typeIndex": 0,
+          },
         },
         "type": "ternary",
       }
@@ -106,7 +114,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
         possibleTypes: [
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field1: {
                 type: 'chevrotainToken',
@@ -116,7 +123,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field2: {
                 type: 'chevrotainToken',
@@ -135,11 +141,15 @@ describe('4-ast-to-parser/discriminate-types', () => {
         },
         "else": {
           "type": "resolve",
-          "value": 1,
+          "value": {
+            "typeIndex": 1,
+          },
         },
         "then": {
           "type": "resolve",
-          "value": 0,
+          "value": {
+            "typeIndex": 0,
+          },
         },
         "type": "ternary",
       }
@@ -152,7 +162,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
         possibleTypes: [
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field1: {
                 type: 'chevrotainToken',
@@ -162,7 +171,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field2: {
                 type: 'chevrotainToken',
@@ -172,7 +180,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field3: {
                 type: 'chevrotainToken',
@@ -196,17 +203,23 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           "else": {
             "type": "resolve",
-            "value": 2,
+            "value": {
+              "typeIndex": 2,
+            },
           },
           "then": {
             "type": "resolve",
-            "value": 1,
+            "value": {
+              "typeIndex": 1,
+            },
           },
           "type": "ternary",
         },
         "then": {
           "type": "resolve",
-          "value": 0,
+          "value": {
+            "typeIndex": 0,
+          },
         },
         "type": "ternary",
       }
@@ -219,7 +232,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
         possibleTypes: [
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field1: {
                 type: 'chevrotainToken',
@@ -233,7 +245,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field1: {
                 type: 'chevrotainToken',
@@ -256,11 +267,15 @@ describe('4-ast-to-parser/discriminate-types', () => {
         },
         "else": {
           "type": "resolve",
-          "value": 1,
+          "value": {
+            "typeIndex": 1,
+          },
         },
         "then": {
           "type": "resolve",
-          "value": 0,
+          "value": {
+            "typeIndex": 0,
+          },
         },
         "type": "ternary",
       }
@@ -273,7 +288,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
         possibleTypes: [
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field_1: {
                 type: 'string',
@@ -285,7 +299,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field_1: {
                 type: 'string',
@@ -297,7 +310,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field_2: {
                 type: 'string',
@@ -318,7 +330,9 @@ describe('4-ast-to-parser/discriminate-types', () => {
         },
         "else": {
           "type": "resolve",
-          "value": 2,
+          "value": {
+            "typeIndex": 2,
+          },
         },
         "then": {
           "condition": {
@@ -327,11 +341,15 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           "else": {
             "type": "resolve",
-            "value": 1,
+            "value": {
+              "typeIndex": 1,
+            },
           },
           "then": {
             "type": "resolve",
-            "value": 0,
+            "value": {
+              "typeIndex": 0,
+            },
           },
           "type": "ternary",
         },
@@ -346,7 +364,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
         possibleTypes: [
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field_1: {
                 type: 'string',
@@ -358,7 +375,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field_1: {
                 type: 'string',
@@ -383,7 +399,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field_1: {
                 type: 'string',
@@ -395,7 +410,6 @@ describe('4-ast-to-parser/discriminate-types', () => {
           },
           {
             type: 'object',
-            typeName: ``,
             fields: {
               field_1: {
                 type: 'string',

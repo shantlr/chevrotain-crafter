@@ -21,7 +21,7 @@ export const astToOutputParser = ({
     throw new Error(`Root rule "start" not found`);
   }
 
-  const rootCstTypeName = rootRule.body.parseOutputType.typeName;
+  const rootCstTypeName = rootRule.body.parseOutputTypeName;
 
   generateTypes({
     tokens,
@@ -29,25 +29,24 @@ export const astToOutputParser = ({
     writer,
   });
 
-  // generateLexer({
-  //   tokens,
-  //   writer,
-  // });
+  generateLexer({
+    tokens,
+    writer,
+  });
 
-  // generateParser({
-  //   tokens,
-  //   ruleDescs,
-  //   writer,
-
-  //   rootCstTypeName,
-  // });
-
-  generateCstToAst({
+  generateParser({
     tokens,
     ruleDescs,
     writer,
 
     rootCstTypeName,
+  });
+
+  generateCstToAst({
+    tokens,
+    rootRule,
+    ruleDescs,
+    writer,
   });
 
   writer.writeFile(

@@ -60,7 +60,7 @@ const formatDiscriminationExpr = ({
   cstTypes,
   ruleDescs,
 }: {
-  discriminationExpr: ReturnType<typeof discriminateType>;
+  discriminationExpr: ReturnType<typeof discriminateType> | null;
   cstNodeVarName: string;
   indentLevel: number;
   cstTypes: TypeDesc[];
@@ -167,7 +167,7 @@ const formatCstFieldToAst = ({
       const arg =
         cstType.type === 'array' ? `${cstNodeVarName}[0]` : cstNodeVarName;
 
-      return `map${ruleDesc.body.parseOutputType.typeName}(${arg})`;
+      return `map${ruleDesc.body.parseOutputTypeName}(${arg})`;
     }
     case 'array': {
       const itemType = astType.elementType;
@@ -193,14 +193,12 @@ const formatCstFieldToAst = ({
     }
     case 'or': {
       if (cstType.type === 'or') {
-        console.log('or:::', astType.branch, cstType.branch);
         if (cstType.branch.length !== astType.branch.length) {
           throw new Error(
             `Unhandled or branch length mismatch between cst=${JSON.stringify(cstType)} and ast=${JSON.stringify(astType)}`
           );
         }
 
-        console.log('DISC', JSON.stringify(cstType.branch, null, 2));
         const discriminationExpr = discriminateType({
           possibleTypes: cstType.branch.map((b) => {
             if (b.type !== 'array') {
@@ -210,7 +208,7 @@ const formatCstFieldToAst = ({
           }),
           ruleDescs,
         });
-        console.log('>>>>', discriminationExpr);
+
         return formatDiscriminationExpr({
           discriminationExpr,
           cstNodeVarName,
@@ -219,26 +217,8 @@ const formatCstFieldToAst = ({
           astTypes: astType.branch,
           ruleDescs,
         });
-
-        // we are expecting a matching branch to branch in the cst type
-        // const content: string[] = [
-        //   ...flatMap(cstType.branch, (cstBranch, index) => {
-        //     const matchingAstBranch = astType.branch[index];
-        //     const res: string[] = [];
-        //     const condition = formatMatchBranch({
-        //       branchType: cstBranch,
-        //       cstVarName: cstNodeVarName,
-        //       ruleDescs,
-        //     });
-        //     console.log('condition::', condition);
-        //     // res.push;
-        //     return res;
-        //   }),
-        // ];
       }
-      return '';
-      // console.log(astType.branch);
-      // return content.join('\n');
+      break;
     }
     default:
   }
@@ -249,42 +229,37 @@ const formatCstFieldToAst = ({
 };
 
 export const generateCstToAst = ({
-  tokens,
+  rootRule,
   ruleDescs,
   writer,
-  rootCstTypeName,
 }: {
   tokens: Record<string, GrammarToken>;
   ruleDescs: Record<string, RuleDesc>;
+  rootRule: RuleDesc;
   writer: IWriter;
-
-  rootCstTypeName: string;
 }) => {
-  const allTypes = map(ruleDescs, (r) => r.body.parseOutputType.typeName);
+  const allTypes = flatMap(ruleDescs, (r) => [
+    r.body.parseOutputTypeName,
+    r.body.cstOutputTypeName,
+  ]);
   const content: string[] = [
     `import type { ${allTypes.join(', ')} } from './types';`,
     `import { TOKENS } from './lexer'`,
     '',
   ];
 
-  for (const [name, ruleDesc] of Object.entries(ruleDescs)) {
-    const cstType = ruleDesc.body.parseOutputType.typeName;
+  for (const [, ruleDesc] of Object.entries(ruleDescs)) {
+    const cstType = ruleDesc.body.parseOutputTypeName;
 
     const cstNodeVarName = 'cstNode';
 
-    content.push(`const map${cstType} = (${cstNodeVarName}: ${cstType}) => {`);
+    content.push(
+      `const map${cstType} = (${cstNodeVarName}: ${cstType}): ${ruleDesc.body.cstOutputTypeName} => {`
+    );
     content.push(`${indent(1)}return {`);
 
     const astType =
       ruleDesc.body.cstOutputType ?? ruleDesc.body.cstOutputTypeDefault;
-
-    // console.log(
-    //   name,
-    //   ':',
-    //   astType.fields,
-    //   '<====',
-    //   ruleDesc.body.parseOutputType.fields.children
-    // );
 
     const ruleCstType = ruleDesc.body.parseOutputType;
     const ruleCstChildren = ruleCstType.fields.children as TypeDescObj;
@@ -307,8 +282,12 @@ export const generateCstToAst = ({
     content.push('};');
   }
 
-  content.push(`export const cstToAst = (cst: ${rootCstTypeName}) => {`);
-  content.push(`${indent(1)}return map${rootCstTypeName}(cst);`);
+  content.push(
+    `export const cstToAst = (cst: ${rootRule.body.parseOutputTypeName}): ${rootRule.body.cstOutputTypeName} => {`
+  );
+  content.push(
+    `${indent(1)}return map${rootRule.body.parseOutputTypeName}(cst);`
+  );
   content.push('};');
 
   writer.writeFile('cst-to-ast.ts', content.join('\n'));

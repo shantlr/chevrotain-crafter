@@ -36,20 +36,35 @@ describe('3-types', () => {
               "cstOutputType": undefined,
               "cstOutputTypeDefault": {
                 "fields": {
-                  "hello": "string",
-                },
-                "type": "object",
-                "typeName": "",
-              },
-              "parseOutputType": {
-                "fields": {
                   "hello": {
-                    "type": "chevrotainToken",
+                    "type": "string",
                   },
                 },
                 "type": "object",
-                "typeName": "",
               },
+              "cstOutputTypeName": "Rule_Start",
+              "parseOutputType": {
+                "fields": {
+                  "children": {
+                    "fields": {
+                      "hello": {
+                        "elementType": {
+                          "tokenName": "hello",
+                          "type": "chevrotainToken",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "name": {
+                    "type": "literal",
+                    "value": "start",
+                  },
+                },
+                "type": "object",
+              },
+              "parseOutputTypeName": "RuleCst_Start",
             },
             "rule": {
               "astBody": [
@@ -122,24 +137,45 @@ describe('3-types', () => {
               "cstOutputType": undefined,
               "cstOutputTypeDefault": {
                 "fields": {
-                  "hello": "string",
-                  "world": "string",
-                },
-                "type": "object",
-                "typeName": "",
-              },
-              "parseOutputType": {
-                "fields": {
                   "hello": {
-                    "type": "chevrotainToken",
+                    "type": "string",
                   },
                   "world": {
-                    "type": "chevrotainToken",
+                    "type": "string",
                   },
                 },
                 "type": "object",
-                "typeName": "",
               },
+              "cstOutputTypeName": "Rule_Start",
+              "parseOutputType": {
+                "fields": {
+                  "children": {
+                    "fields": {
+                      "hello": {
+                        "elementType": {
+                          "tokenName": "hello",
+                          "type": "chevrotainToken",
+                        },
+                        "type": "array",
+                      },
+                      "world": {
+                        "elementType": {
+                          "tokenName": "world",
+                          "type": "chevrotainToken",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "name": {
+                    "type": "literal",
+                    "value": "start",
+                  },
+                },
+                "type": "object",
+              },
+              "parseOutputTypeName": "RuleCst_Start",
             },
             "rule": {
               "astBody": [
@@ -226,31 +262,53 @@ describe('3-types', () => {
               },
               "cstOutputType": {
                 "fields": {
-                  "param1": "string",
+                  "param1": {
+                    "type": "string",
+                  },
                 },
                 "type": "object",
-                "typeName": "",
               },
               "cstOutputTypeDefault": {
                 "fields": {
-                  "hello": "string",
-                  "world": "string",
+                  "hello": {
+                    "type": "string",
+                  },
+                  "world": {
+                    "type": "string",
+                  },
                 },
                 "type": "object",
-                "typeName": "",
               },
+              "cstOutputTypeName": "Rule_Start",
               "parseOutputType": {
                 "fields": {
-                  "hello": {
-                    "type": "chevrotainToken",
+                  "children": {
+                    "fields": {
+                      "hello": {
+                        "elementType": {
+                          "tokenName": "hello",
+                          "type": "chevrotainToken",
+                        },
+                        "type": "array",
+                      },
+                      "param1": {
+                        "elementType": {
+                          "tokenName": "world",
+                          "type": "chevrotainToken",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "type": "object",
                   },
-                  "param1": {
-                    "type": "chevrotainToken",
+                  "name": {
+                    "type": "literal",
+                    "value": "start",
                   },
                 },
                 "type": "object",
-                "typeName": "",
               },
+              "parseOutputTypeName": "RuleCst_Start",
             },
             "rule": {
               "astBody": [
@@ -280,7 +338,7 @@ describe('3-types', () => {
     `);
   });
 
-  it.only('should handle multiple same name', () => {
+  it('should handle multiple same name', () => {
     expect(
       describeRules({
         rules: {
@@ -333,20 +391,35 @@ describe('3-types', () => {
               "cstOutputType": undefined,
               "cstOutputTypeDefault": {
                 "fields": {
-                  "world": "string",
-                },
-                "type": "object",
-                "typeName": "",
-              },
-              "parseOutputType": {
-                "fields": {
                   "world": {
-                    "type": "chevrotainToken",
+                    "type": "string",
                   },
                 },
                 "type": "object",
-                "typeName": "",
               },
+              "cstOutputTypeName": "Rule_Rule1",
+              "parseOutputType": {
+                "fields": {
+                  "children": {
+                    "fields": {
+                      "world": {
+                        "elementType": {
+                          "tokenName": "world",
+                          "type": "chevrotainToken",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "name": {
+                    "type": "literal",
+                    "value": "r_rule_1",
+                  },
+                },
+                "type": "object",
+              },
+              "parseOutputTypeName": "RuleCst_Rule1",
             },
             "rule": {
               "astBody": [
@@ -396,49 +469,66 @@ describe('3-types', () => {
                 "fields": {
                   "param1": {
                     "branch": [
-                      "string",
+                      {
+                        "type": "string",
+                      },
                       {
                         "ruleName": "rule_1",
                         "type": "ruleRef",
                       },
                     ],
                     "type": "or",
-                    "typeName": "",
                   },
                 },
                 "type": "object",
-                "typeName": "",
               },
               "cstOutputTypeDefault": {
                 "fields": {
-                  "hello": "string",
+                  "hello": {
+                    "type": "string",
+                  },
                   "r_rule_1": {
                     "ruleName": "rule_1",
                     "type": "ruleRef",
                   },
                 },
                 "type": "object",
-                "typeName": "",
               },
+              "cstOutputTypeName": "Rule_Start",
               "parseOutputType": {
                 "fields": {
-                  "param1": {
-                    "branch": [
-                      {
-                        "type": "chevrotainToken",
+                  "children": {
+                    "fields": {
+                      "param1": {
+                        "branch": [
+                          {
+                            "elementType": {
+                              "tokenName": "hello",
+                              "type": "chevrotainToken",
+                            },
+                            "type": "array",
+                          },
+                          {
+                            "elementType": {
+                              "ruleName": "rule_1",
+                              "type": "ruleRef",
+                            },
+                            "type": "array",
+                          },
+                        ],
+                        "type": "or",
                       },
-                      {
-                        "ruleName": "rule_1",
-                        "type": "ruleRef",
-                      },
-                    ],
-                    "type": "or",
-                    "typeName": "",
+                    },
+                    "type": "object",
+                  },
+                  "name": {
+                    "type": "literal",
+                    "value": "r_start",
                   },
                 },
                 "type": "object",
-                "typeName": "",
               },
+              "parseOutputTypeName": "RuleCst_Start",
             },
             "rule": {
               "astBody": [

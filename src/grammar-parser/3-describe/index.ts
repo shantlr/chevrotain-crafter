@@ -16,7 +16,7 @@ export const describeRules = ({
 }) => {
   const rules = { ...inputRules };
 
-  // split into subrules (named groups)
+  // split named groups into subrules
   for (const rule of Object.values(inputRules)) {
     const split = splitIntoSubRules(rule, rules);
     if (split) {

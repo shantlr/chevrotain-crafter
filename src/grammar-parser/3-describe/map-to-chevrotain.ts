@@ -58,9 +58,9 @@ const applyMany1 = (type: TypeDescObj): TypeDescObj => {
 };
 
 const applyModifier = (
-  node: RuleBodyDesc,
+  node: Omit<RuleBodyDesc, 'parseOutputTypeName' | 'cstOutputTypeName'>,
   modifier: 'optional' | 'many' | 'many1'
-): RuleBodyDesc => {
+): Omit<RuleBodyDesc, 'parseOutputTypeName' | 'cstOutputTypeName'> => {
   switch (modifier) {
     case 'optional':
       return {
@@ -102,8 +102,15 @@ const applyModifier = (
 };
 
 const mergeObjectType = (
-  typeName: string,
-  objectTypes: TypeDescObj[]
+  objectTypes: TypeDescObj[],
+  opt?: {
+    /**
+     * TODO: implem
+     * Map A[] | B[] => (A | B)[]
+     * instead of default A[] | B[]
+     */
+    unionOrArray?: boolean;
+  }
 ): TypeDescObj => {
   const fields = objectTypes.reduce<Record<string, TypeDesc>>((acc, obj) => {
     for (const [key, value] of Object.entries(obj.fields)) {
@@ -114,7 +121,6 @@ const mergeObjectType = (
         } else {
           acc[key] = {
             type: 'or',
-            typeName: ``,
             branch: [acc[key], value],
           };
         }
@@ -128,7 +134,6 @@ const mergeObjectType = (
 
   return {
     type: 'object',
-    typeName,
     fields,
   };
 };
@@ -143,7 +148,7 @@ const mapNodeToChevrotainCalls = ({
   node: GrammarRuleSeqNode | GrammarRuleSeqNode[];
   tokens: Record<string, GrammarToken>;
   rules: Record<string, GrammarRule>;
-}): RuleBodyDesc => {
+}): Omit<RuleBodyDesc, 'parseOutputTypeName' | 'cstOutputTypeName'> => {
   if (Array.isArray(node)) {
     const tests = node.map((n) =>
       mapNodeToChevrotainCalls({
@@ -164,16 +169,12 @@ const mapNodeToChevrotainCalls = ({
         value: tests.map((t) => t.chevrotain),
       },
       parseOutputType: mergeObjectType(
-        `RuleCst_${typeNamePrefix}`,
-        tests.map((t) => t.parseOutputType)
+        tests.map((t) => t.parseOutputType),
+        { unionOrArray: true }
       ),
-
       cstOutputType:
-        cstOutputType.length > 0
-          ? mergeObjectType(`Rule_${typeNamePrefix}`, cstOutputType)
-          : undefined,
+        cstOutputType.length > 0 ? mergeObjectType(cstOutputType) : undefined,
       cstOutputTypeDefault: mergeObjectType(
-        `Rule_${typeNamePrefix}`,
         tests.map((t) => t.cstOutputTypeDefault)
       ),
     };
@@ -191,22 +192,16 @@ const mapNodeToChevrotainCalls = ({
         type: 'or',
         value: tests.map((t) => t.chevrotain),
       },
-      parseOutputType: mergeObjectType(
-        '',
-        tests.map((t) => t.parseOutputType)
-      ),
+      parseOutputType: mergeObjectType(tests.map((t) => t.parseOutputType)),
       cstOutputType:
-        cstOutputType.length > 0
-          ? mergeObjectType('', cstOutputType)
-          : undefined,
+        cstOutputType.length > 0 ? mergeObjectType(cstOutputType) : undefined,
       cstOutputTypeDefault: mergeObjectType(
-        '',
         tests.map((t) => t.cstOutputTypeDefault)
       ),
     };
   }
 
-  let res: RuleBodyDesc;
+  let res: Omit<RuleBodyDesc, 'parseOutputTypeName' | 'cstOutputTypeName'>;
 
   if (isLiteralNode(node)) {
     res = {
@@ -218,13 +213,13 @@ const mapNodeToChevrotainCalls = ({
       },
       parseOutputType: {
         type: 'object',
-        typeName: ``,
         fields: {
           // NOTE: chevrotain output are always array
           [node.name ?? node.value]: {
             type: 'array',
             elementType: {
               type: 'chevrotainToken',
+              tokenName: node.value,
             },
           },
         },
@@ -232,17 +227,15 @@ const mapNodeToChevrotainCalls = ({
       cstOutputType: node.name
         ? {
             type: 'object',
-            typeName: '',
             fields: {
-              [node.name]: 'string',
+              [node.name]: { type: 'string' },
             },
           }
         : undefined,
       cstOutputTypeDefault: {
         type: 'object',
-        typeName: '',
         fields: {
-          [node.value]: 'string',
+          [node.value]: { type: 'string' },
         },
       },
     };
@@ -258,12 +251,12 @@ const mapNodeToChevrotainCalls = ({
         },
         parseOutputType: {
           type: 'object',
-          typeName: ``,
           fields: {
             [node.name ?? token.name]: {
               type: 'array',
               elementType: {
                 type: 'chevrotainToken',
+                tokenName: token.name,
               },
             },
           },
@@ -271,17 +264,15 @@ const mapNodeToChevrotainCalls = ({
         cstOutputType: node.name
           ? {
               type: 'object',
-              typeName: '',
               fields: {
-                [node.name]: 'string',
+                [node.name]: { type: 'string' },
               },
             }
           : undefined,
         cstOutputTypeDefault: {
           type: 'object',
-          typeName: '',
           fields: {
-            [token.name]: 'string',
+            [token.name]: { type: 'string' },
           },
         },
       };
@@ -299,7 +290,6 @@ const mapNodeToChevrotainCalls = ({
         },
         parseOutputType: {
           type: 'object',
-          typeName: '',
           fields: {
             [node.name ?? rule.methodName]: {
               type: 'array',
@@ -313,7 +303,6 @@ const mapNodeToChevrotainCalls = ({
         cstOutputType: node.name
           ? {
               type: 'object',
-              typeName: '',
               fields: {
                 [node.name ?? rule.methodName]: {
                   type: 'ruleRef',
@@ -324,7 +313,6 @@ const mapNodeToChevrotainCalls = ({
           : undefined,
         cstOutputTypeDefault: {
           type: 'object',
-          typeName: '',
           fields: {
             [rule.methodName]: {
               type: 'ruleRef',
@@ -347,11 +335,11 @@ const mapNodeToChevrotainCalls = ({
         type: 'seq',
         value: [tests.chevrotain],
       },
-      parseOutputType: mergeObjectType('', [tests.parseOutputType]),
+      parseOutputType: mergeObjectType([tests.parseOutputType]),
       cstOutputType: tests.cstOutputType
-        ? mergeObjectType('', [tests.cstOutputType])
+        ? mergeObjectType([tests.cstOutputType])
         : undefined,
-      cstOutputTypeDefault: mergeObjectType('', [tests.cstOutputTypeDefault]),
+      cstOutputTypeDefault: mergeObjectType([tests.cstOutputTypeDefault]),
     };
   }
 
@@ -392,9 +380,10 @@ export const mapRuleToChevrotain = ({
 
   return {
     ...node,
+    cstOutputTypeName: `Rule_${mapRuleNameToType(rule.name)}`,
+    parseOutputTypeName: `RuleCst_${mapRuleNameToType(rule.name)}`,
     parseOutputType: {
       type: 'object',
-      typeName: `RuleCst_${mapRuleNameToType(rule.name)}`,
       fields: {
         name: {
           type: 'literal',
@@ -402,7 +391,6 @@ export const mapRuleToChevrotain = ({
         },
         children: {
           type: 'object',
-          typeName: '',
           fields: {
             ...node.parseOutputType.fields,
           },

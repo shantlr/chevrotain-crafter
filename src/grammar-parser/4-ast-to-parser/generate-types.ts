@@ -70,15 +70,17 @@ export const generateTypes = ({
 }) => {
   const content: string[] = [`import { IToken } from 'chevrotain';`, ''];
 
+  const ruleNameToTypeName = mapValues(
+    ruleDescs,
+    (r) => r.body.parseOutputTypeName
+  );
+
   for (const [, ruleDesc] of Object.entries(ruleDescs)) {
     const type = ruleDesc.body.parseOutputType;
     content.push(
-      `export type ${type.typeName} = ${serializeType({
+      `export type ${ruleDesc.body.parseOutputTypeName} = ${serializeType({
         type,
-        ruleTypeNames: mapValues(
-          ruleDescs,
-          (r) => r.body.parseOutputType.typeName
-        ),
+        ruleTypeNames: ruleNameToTypeName,
         indentLevel: 1,
       })};`
     );
@@ -90,12 +92,9 @@ export const generateTypes = ({
     const type =
       ruleDesc.body.cstOutputType ?? ruleDesc.body.cstOutputTypeDefault;
     content.push(
-      `export type ${type.typeName} = ${serializeType({
+      `export type ${ruleDesc.body.cstOutputTypeName} = ${serializeType({
         type,
-        ruleTypeNames: mapValues(
-          ruleDescs,
-          (r) => (r.body.cstOutputType ?? r.body.cstOutputTypeDefault).typeName
-        ),
+        ruleTypeNames: ruleNameToTypeName,
         indentLevel: 1,
       })};`
     );
