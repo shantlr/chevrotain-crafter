@@ -124,12 +124,12 @@ describe('1-to-ast/parser', () => {
                     {
                       "modifier": undefined,
                       "name": undefined,
-                      "value": ""hello"",
+                      "value": "hello",
                     },
                     {
                       "modifier": undefined,
                       "name": undefined,
-                      "value": ""world"",
+                      "value": "world",
                     },
                   ],
                   "name": "rule_1",
@@ -210,7 +210,7 @@ describe('1-to-ast/parser', () => {
                     {
                       "modifier": undefined,
                       "name": undefined,
-                      "value": ""hello"",
+                      "value": "hello",
                     },
                     {
                       "modifier": undefined,
@@ -228,12 +228,12 @@ describe('1-to-ast/parser', () => {
                     {
                       "modifier": undefined,
                       "name": undefined,
-                      "value": ""world"",
+                      "value": "world",
                     },
                     {
                       "modifier": undefined,
                       "name": undefined,
-                      "value": ""."",
+                      "value": ".",
                     },
                   ],
                   "name": "rule_2",
@@ -266,12 +266,12 @@ describe('1-to-ast/parser', () => {
                           {
                             "modifier": undefined,
                             "name": undefined,
-                            "value": ""hello"",
+                            "value": "hello",
                           },
                           {
                             "modifier": undefined,
                             "name": undefined,
-                            "value": ""world"",
+                            "value": "world",
                           },
                         ],
                       },
@@ -306,14 +306,14 @@ describe('1-to-ast/parser', () => {
                           {
                             "modifier": undefined,
                             "name": undefined,
-                            "value": ""hello"",
+                            "value": "hello",
                           },
                         ],
                         [
                           {
                             "modifier": undefined,
                             "name": undefined,
-                            "value": ""world"",
+                            "value": "world",
                           },
                         ],
                       ],
@@ -344,17 +344,17 @@ describe('1-to-ast/parser', () => {
                       {
                         "modifier": "optional",
                         "name": undefined,
-                        "value": ""hello"",
+                        "value": "hello",
                       },
                       {
                         "modifier": "many1",
                         "name": undefined,
-                        "value": ""hello"",
+                        "value": "hello",
                       },
                       {
                         "modifier": "many",
                         "name": undefined,
-                        "value": ""hello"",
+                        "value": "hello",
                       },
                     ],
                     "name": "rule_1",
@@ -432,7 +432,7 @@ describe('1-to-ast/parser', () => {
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""hello"",
+                              "value": "hello",
                             },
                           ],
                         },
@@ -501,7 +501,7 @@ describe('1-to-ast/parser', () => {
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""hello"",
+                              "value": "hello",
                             },
                           ],
                         },
@@ -561,7 +561,7 @@ describe('1-to-ast/parser', () => {
                       {
                         "modifier": undefined,
                         "name": "name",
-                        "value": ""hello"",
+                        "value": "hello",
                       },
                     ],
                     "name": "rule_1",
@@ -593,12 +593,12 @@ describe('1-to-ast/parser', () => {
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""hello"",
+                              "value": "hello",
                             },
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""world"",
+                              "value": "world",
                             },
                           ],
                         },
@@ -634,21 +634,21 @@ describe('1-to-ast/parser', () => {
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""hello"",
+                              "value": "hello",
                             },
                           ],
                           [
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""world"",
+                              "value": "world",
                             },
                           ],
                           [
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""fizbuzz"",
+                              "value": "fizbuzz",
                             },
                           ],
                         ],
@@ -682,41 +682,41 @@ describe('1-to-ast/parser', () => {
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""hello"",
+                              "value": "hello",
                             },
                           ],
                           [
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""world"",
+                              "value": "world",
                             },
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""center"",
+                              "value": "center",
                             },
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""after"",
+                              "value": "after",
                             },
                           ],
                           [
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""after-2"",
+                              "value": "after-2",
                             },
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""then"",
+                              "value": "then",
                             },
                             {
                               "modifier": undefined,
                               "name": undefined,
-                              "value": ""end"",
+                              "value": "end",
                             },
                           ],
                         ],
@@ -769,12 +769,12 @@ rules:
                     {
                       "modifier": undefined,
                       "name": undefined,
-                      "value": ""hello"",
+                      "value": "hello",
                     },
                     {
                       "modifier": undefined,
                       "name": undefined,
-                      "value": ""world"",
+                      "value": "world",
                     },
                   ],
                   "name": "rule_1",

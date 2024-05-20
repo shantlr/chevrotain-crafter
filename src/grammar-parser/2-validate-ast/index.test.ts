@@ -59,12 +59,13 @@ describe('2-validate-ast', () => {
                 "value": "hello",
               },
             ],
+            "methodName": "r_rule1",
             "name": "rule1",
           },
         },
         "tokens": {
-          "inline:hello": {
-            "name": "inline:hello",
+          "hello": {
+            "name": "hello",
             "pattern": "hello",
           },
         },
@@ -117,6 +118,7 @@ describe('2-validate-ast', () => {
                   },
                 },
               ],
+              "methodName": "r_rule1",
               "name": "rule1",
             },
           },
@@ -172,6 +174,7 @@ describe('2-validate-ast', () => {
                   },
                 },
               ],
+              "methodName": "r_rule1",
               "name": "rule1",
             },
             "rule2": {
@@ -180,12 +183,13 @@ describe('2-validate-ast', () => {
                   "value": "hello",
                 },
               ],
+              "methodName": "r_rule2",
               "name": "rule2",
             },
           },
           "tokens": {
-            "inline:hello": {
-              "name": "inline:hello",
+            "hello": {
+              "name": "hello",
               "pattern": "hello",
             },
           },

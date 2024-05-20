@@ -108,9 +108,9 @@ export const generateParser = ({
     ...map(ruleDescs, ({ rule, body }) => {
       const name = rule.methodName;
       return [
-        ` ${name} = this.RULE('${name}', () => {`,
+        `  ${name} = this.RULE('${name}', () => {`,
         serializeChevrotainCalls(body.chevrotain, 2),
-        ` });`,
+        `  });`,
       ].join('\n');
     }),
     '',

@@ -1,4 +1,4 @@
-import { flatMap, map } from 'lodash-es';
+import { flatMap } from 'lodash-es';
 import { type GrammarToken } from '../../2-validate-ast/types';
 import {
   type TypeDesc,
@@ -8,49 +8,6 @@ import {
 import { type IWriter } from '../../types';
 import { formatFieldAccess, indent } from '../../utils/indent';
 import { discriminateType } from './discriminate-type';
-
-// const formatMatchBranch = ({
-//   cstVarName,
-//   branchType,
-//   ruleDescs,
-// }: {
-//   branchType: TypeDesc;
-//   cstVarName: string;
-//   ruleDescs: Record<string, RuleDesc>;
-// }): string => {
-//   switch (branchType.type) {
-//     case 'object': {
-//       // return Object.entries(branchType.fields);
-//     }
-//     case 'ruleRef': {
-//       const ruleDesc = ruleDescs[branchType.ruleName];
-//       if (!ruleDesc) {
-//         throw new Error(`Rule '${branchType.ruleName}' not found`);
-//       }
-//       const ruleCstType = ruleDesc.body.parseOutputType;
-
-//       return formatMatchBranch({
-//         branchType: ruleCstType,
-//         cstVarName,
-//         ruleDescs,
-//       });
-//     }
-//     case 'chevrotainToken': {
-//       return `${cstVarName}?.tokenType === TOKENS${formatFieldAccess(branchType.tokenName)}`;
-//     }
-//     case 'array': {
-//       console.log('CHECK array', cstVarName, branchType);
-//       return formatMatchBranch({
-//         cstVarName: `${cstVarName}[0]`,
-//         branchType: branchType.elementType,
-//         ruleDescs,
-//       });
-//     }
-//     default:
-//   }
-
-//   throw new Error(`Unhandled match branch type ${JSON.stringify(branchType)}`);
-// };
 
 const formatDiscriminationExpr = ({
   discriminationExpr,
@@ -73,13 +30,6 @@ const formatDiscriminationExpr = ({
   switch (discriminationExpr.type) {
     case 'resolve': {
       const typeIndex = discriminationExpr.value.typeIndex;
-      const type = astTypes[typeIndex];
-      console.log(
-        'RESOLVE',
-        discriminationExpr.value.typeIndex,
-        type,
-        cstTypes[typeIndex]
-      );
       return formatCstFieldToAst({
         cstType: cstTypes[typeIndex],
         astType: astTypes[typeIndex],
@@ -93,7 +43,7 @@ const formatDiscriminationExpr = ({
       const condition = discriminationExpr.condition;
       switch (condition.type) {
         case 'isToken': {
-          formattedCondition = `${cstNodeVarName}[0].tokenType === TOKENS${formatFieldAccess(condition.tokenName)}`;
+          formattedCondition = `${cstNodeVarName}.tokenType === TOKENS${formatFieldAccess(condition.tokenName)}`;
           break;
         }
         case 'hasField': {
@@ -201,10 +151,10 @@ const formatCstFieldToAst = ({
 
         const discriminationExpr = discriminateType({
           possibleTypes: cstType.branch.map((b) => {
-            if (b.type !== 'array') {
-              throw new Error(`Or branch expected array but got ${b.type}`);
+            if (b.type === 'array') {
+              return b.elementType;
             }
-            return b.elementType;
+            return b;
           }),
           ruleDescs,
         });
@@ -224,7 +174,7 @@ const formatCstFieldToAst = ({
   }
 
   throw new Error(
-    `Unhandled map cst field to cst field ast=${JSON.stringify(astType)} cst=${JSON.stringify(cstType)}`
+    `Unhandled map cst field to ast field ast=${JSON.stringify(astType)} cst=${JSON.stringify(cstType)}`
   );
 };
 

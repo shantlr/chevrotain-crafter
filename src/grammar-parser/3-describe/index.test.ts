@@ -338,7 +338,7 @@ describe('3-types', () => {
     `);
   });
 
-  it('should handle multiple same name', () => {
+  it('should handle or with same name', () => {
     expect(
       describeRules({
         rules: {
@@ -551,6 +551,132 @@ describe('3-types', () => {
                       },
                     ],
                   ],
+                },
+              ],
+              "methodName": "r_start",
+              "name": "start",
+            },
+          },
+        },
+      }
+    `);
+  });
+
+  it('should handle multiple same name', () => {
+    expect(
+      describeRules({
+        rules: {
+          start: {
+            name: 'start',
+            methodName: 'r_start',
+            astBody: [
+              {
+                name: 'param1',
+                value: 'hello',
+              },
+              {
+                name: 'param1',
+                value: 'world',
+              },
+            ],
+          },
+        },
+        tokens: {},
+      })
+    ).toMatchInlineSnapshot(`
+      {
+        "ruleDescs": {
+          "start": {
+            "body": {
+              "chevrotain": {
+                "type": "seq",
+                "value": [
+                  {
+                    "label": "hello",
+                    "outputName": "param1",
+                    "tokenName": "hello",
+                    "type": "consume",
+                  },
+                  {
+                    "label": "world",
+                    "outputName": "param1",
+                    "tokenName": "world",
+                    "type": "consume",
+                  },
+                ],
+              },
+              "cstOutputType": {
+                "fields": {
+                  "param1": {
+                    "elementType": {
+                      "branch": [
+                        {
+                          "type": "string",
+                        },
+                        {
+                          "type": "string",
+                        },
+                      ],
+                      "type": "or",
+                    },
+                    "type": "array",
+                  },
+                },
+                "type": "object",
+              },
+              "cstOutputTypeDefault": {
+                "fields": {
+                  "hello": {
+                    "type": "string",
+                  },
+                  "world": {
+                    "type": "string",
+                  },
+                },
+                "type": "object",
+              },
+              "cstOutputTypeName": "Rule_Start",
+              "parseOutputType": {
+                "fields": {
+                  "children": {
+                    "fields": {
+                      "param1": {
+                        "elementType": {
+                          "branch": [
+                            {
+                              "tokenName": "hello",
+                              "type": "chevrotainToken",
+                            },
+                            {
+                              "tokenName": "world",
+                              "type": "chevrotainToken",
+                            },
+                          ],
+                          "type": "or",
+                        },
+                        "type": "array",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "name": {
+                    "type": "literal",
+                    "value": "r_start",
+                  },
+                },
+                "type": "object",
+              },
+              "parseOutputTypeName": "RuleCst_Start",
+            },
+            "rule": {
+              "astBody": [
+                {
+                  "name": "param1",
+                  "value": "hello",
+                },
+                {
+                  "name": "param1",
+                  "value": "world",
                 },
               ],
               "methodName": "r_start",

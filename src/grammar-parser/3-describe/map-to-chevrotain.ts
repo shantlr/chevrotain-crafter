@@ -8,6 +8,7 @@ import {
   isRefNode,
 } from '../2-validate-ast/utils';
 import {
+  type TypeDescArray,
   type RuleBodyDesc,
   type TypeDesc,
   type TypeDescObj,
@@ -17,6 +18,14 @@ import {
 const isOrType = (type: TypeDesc | undefined): type is TypeDescOr => {
   return (
     !!type && typeof type === 'object' && 'type' in type && type.type === 'or'
+  );
+};
+const isArrayType = (type: TypeDesc | undefined): type is TypeDescArray => {
+  return (
+    !!type &&
+    typeof type === 'object' &&
+    'type' in type &&
+    type.type === 'array'
   );
 };
 
@@ -116,6 +125,42 @@ const mergeObjectType = (
     for (const [key, value] of Object.entries(obj.fields)) {
       if (key in acc) {
         const existing = acc[key];
+
+        if (opt?.unionOrArray) {
+          // (A | B)[] + C => (A | B | C)[]
+          if (isArrayType(existing) && isOrType(existing.elementType)) {
+            // (A | B)[] + (C | D)[] => (A | B | C | D)[]
+            if (isArrayType(value) && isOrType(value.elementType)) {
+              existing.elementType.branch.push(...value.elementType.branch);
+            }
+            // (A | B)[] + (C | D) => (A | B | C | D)[]
+            else if (isOrType(value)) {
+              existing.elementType.branch.push(...value.branch);
+            } else {
+              existing.elementType.branch.push(value);
+            }
+          } else if (isArrayType(existing) && isArrayType(value)) {
+            // A[] + B[] => (A | B)[]
+            acc[key] = {
+              type: 'array',
+              elementType: {
+                type: 'or',
+                branch: [existing.elementType, value.elementType],
+              },
+            };
+          } else {
+            // A + B => (A | B)[]
+            acc[key] = {
+              type: 'array',
+              elementType: {
+                type: 'or',
+                branch: [existing, value],
+              },
+            };
+          }
+          continue;
+        }
+
         if (isOrType(existing)) {
           existing.branch.push(value);
         } else {
@@ -124,9 +169,10 @@ const mergeObjectType = (
             branch: [acc[key], value],
           };
         }
-      } else {
-        acc[key] = value;
+        continue;
       }
+
+      acc[key] = value;
     }
 
     return acc;
@@ -173,7 +219,11 @@ const mapNodeToChevrotainCalls = ({
         { unionOrArray: true }
       ),
       cstOutputType:
-        cstOutputType.length > 0 ? mergeObjectType(cstOutputType) : undefined,
+        cstOutputType.length > 0
+          ? mergeObjectType(cstOutputType, {
+              unionOrArray: true,
+            })
+          : undefined,
       cstOutputTypeDefault: mergeObjectType(
         tests.map((t) => t.cstOutputTypeDefault)
       ),
@@ -384,6 +434,8 @@ export const mapRuleToChevrotain = ({
     parseOutputTypeName: `RuleCst_${mapRuleNameToType(rule.name)}`,
     parseOutputType: {
       type: 'object',
+
+      // NOTE:chevrotain rule cst output look like { name: 'rule-name', children: { ... } }
       fields: {
         name: {
           type: 'literal',

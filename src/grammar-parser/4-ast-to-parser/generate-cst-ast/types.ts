@@ -1,29 +1,9 @@
 import { type TypeDesc } from '../../3-describe/types';
 
-// export type DiscriminateChain = {
-//   nodes: DiscriminateChainNode[];
-// };
-export type DiscriminateNode = {
-  condition: DiscriminateCondition;
-  branches: DiscriminateNode[];
-  matching: any[];
-};
-
-type Discriminate = {
-  condition: DiscriminateChain;
-  composable: DiscriminateChain[];
-};
-
-export type DiscriminateChainNode = {
-  condition: DiscriminateCondition;
-  matching: any[];
-};
-
 export type DiscriminateCondition =
   | DiscriminatorIsToken
   | DiscriminateHasField
   | DiscriminateFieldType;
-// | DiscriminateDefault;
 
 export type DiscriminatorIsToken = {
   type: 'isToken';

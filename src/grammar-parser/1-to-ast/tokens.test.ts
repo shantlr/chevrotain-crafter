@@ -46,20 +46,13 @@ describe('1-to-ast/tokens', () => {
 
     it('should parse only new line', () => {
       const tokens = tokenizeGrammar('\n\n\n');
-      expect(serializeToken(tokens)).toMatchInlineSnapshot(`
-        [
-          "nl:"\\n"",
-          "nl:"\\n"",
-          "nl:"\\n"",
-        ]
-      `);
+      expect(serializeToken(tokens)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should parse indent', () => {
       const tokens = tokenizeGrammar(`  test`);
       expect(serializeToken(tokens)).toMatchInlineSnapshot(`
         [
-          "indent:"  "",
           "identifier:"test"",
         ]
       `);
@@ -126,7 +119,6 @@ outdent`);
           "outdent:""",
           "outdent:"  "",
           "identifier:"outdent"",
-          "nl:"\\n"",
         ]
       `);
     });
