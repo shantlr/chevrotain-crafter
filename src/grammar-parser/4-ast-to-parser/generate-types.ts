@@ -70,17 +70,18 @@ export const generateTypes = ({
 }) => {
   const content: string[] = [`import { IToken } from 'chevrotain';`, ''];
 
-  const ruleNameToTypeName = mapValues(
+  const cstRuleNameToTypeName = mapValues(
     ruleDescs,
     (r) => r.body.parseOutputTypeName
   );
 
+  // Generate cst types (output of chevrotain parser)
   for (const [, ruleDesc] of Object.entries(ruleDescs)) {
     const type = ruleDesc.body.parseOutputType;
     content.push(
       `export type ${ruleDesc.body.parseOutputTypeName} = ${serializeType({
         type,
-        ruleTypeNames: ruleNameToTypeName,
+        ruleTypeNames: cstRuleNameToTypeName,
         indentLevel: 1,
       })};`
     );
@@ -88,13 +89,19 @@ export const generateTypes = ({
 
   content.push('');
 
+  const astRuleNameToTypeName = mapValues(
+    ruleDescs,
+    (r) => r.body.cstOutputTypeName
+  );
+
+  // Generate ast types (expected types given named params)
   for (const [, ruleDesc] of Object.entries(ruleDescs)) {
     const type =
       ruleDesc.body.cstOutputType ?? ruleDesc.body.cstOutputTypeDefault;
     content.push(
       `export type ${ruleDesc.body.cstOutputTypeName} = ${serializeType({
         type,
-        ruleTypeNames: ruleNameToTypeName,
+        ruleTypeNames: astRuleNameToTypeName,
         indentLevel: 1,
       })};`
     );

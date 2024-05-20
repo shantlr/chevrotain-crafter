@@ -52,14 +52,14 @@ export const astToOutputParser = ({
   writer.writeFile(
     'index.ts',
     [
-      `import { tokenizeText } from './lexer`,
+      `import { tokenizeText } from './lexer';`,
       `import { parseTextToCst } from './parser';`,
-      `import { mapCstToAst } from './cst-to-ast';`,
+      `import { cstToAst } from './cst-to-ast';`,
       '',
       'export const parse = (text: string) => {',
       '  const tokens = tokenizeText(text);',
       '  const cst = parseTextToCst(tokens);',
-      '  const ast = mapCstToAst(cst);',
+      '  const ast = cstToAst(cst);',
       '  return ast;',
       '};',
     ].join('\n')

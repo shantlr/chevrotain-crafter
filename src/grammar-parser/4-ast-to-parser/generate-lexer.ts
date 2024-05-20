@@ -25,7 +25,7 @@ export const generateLexer = ({
     ...map(tokens, (t) => `  TOKENS[${JSON.stringify(t.name)}],`),
     `]);`,
     `export const tokenizeText = (text: string) => {`,
-    `  const tokens = grammarLexer.tokenize(preprocessedText.text);`,
+    `  const tokens = lexer.tokenize(text);`,
     `  return tokens.tokens;`,
     `};`,
   ];

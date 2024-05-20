@@ -36,7 +36,13 @@ const serializeChevrotainCalls = (
       return [
         `${indent(i)}this.${method}([`,
         ...call.value.map((v) =>
-          serializeChevrotainCalls(v, i + 1, signatureCount)
+          [
+            `${indent(i + 1)}{`,
+            `${indent(i + 2)}ALT: () => {`,
+            serializeChevrotainCalls(v, i + 3, signatureCount),
+            `${indent(i + 2)}},`,
+            `${indent(i + 1)}},`,
+          ].join('\n')
         ),
         `${indent(i)}]);`,
       ].join('\n');
@@ -115,12 +121,12 @@ export const generateParser = ({
     }),
     '',
     `  constructor() {`,
-    `    super(GRAMMAR_TOKEN_LIST);`,
+    `    super(TOKENS);`,
     `    this.performSelfAnalysis();`,
     `  }`,
     `}`,
     '',
-    `export const parseTextToCst = (tokens: IToken) => {`,
+    `export const parseTextToCst = (tokens: IToken[]) => {`,
     `  const parser = new Parser();`,
     `  parser.input = tokens;`,
     `  const cst = parser.r_start();`,
