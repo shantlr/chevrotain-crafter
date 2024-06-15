@@ -85,7 +85,10 @@ export type Rule_PrimaryExpr_WithNodeType = {
 export type IParseOptions = {
   withNodeType?: boolean;
 };
+export type ParseTextOutput<ParseOptions extends IParseOptions> =
+  ParseOptions extends { withNodeType: true } ? Rule_Start_WithNodeType
+  : Rule_Start;
 export interface ParseText {
   (text: string): Rule_Start;
-  <ParseOptions extends IParseOptions>(text: string, options: ParseOptions): Rule_Start;
+  <ParseOptions extends IParseOptions>(text: string, options: ParseOptions): ParseTextOutput<ParseOptions>;
 };

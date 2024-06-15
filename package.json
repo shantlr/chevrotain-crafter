@@ -9,6 +9,11 @@
     "lint": "eslint src",
     "build": "rm -rf dist/ && rollup -c ./rollup.config.js"
   },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
   "bin": {
     "chevrotain-test": "./dist/cli.js"
   },

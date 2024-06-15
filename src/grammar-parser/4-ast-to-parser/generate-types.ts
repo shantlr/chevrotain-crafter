@@ -148,9 +148,12 @@ export const generateTypes = ({
     `export type ${TypeName.IParseOptions} = {`,
     `  withNodeType?: boolean;`,
     `};`,
+    `export type ${TypeName.ParseTextOutput}<ParseOptions extends IParseOptions> =`,
+    `  ParseOptions extends { withNodeType: true } ? ${mapTypeNameWithNodeType(rootRule.body.cstOutputTypeName)}`,
+    `  : ${rootRule.body.cstOutputTypeName};`,
     `export interface ${TypeName.ParseText} {`,
     `  (text: string): ${rootRule.body.cstOutputTypeName};`,
-    `  <ParseOptions extends IParseOptions>(text: string, options: ParseOptions): ${rootRule.body.cstOutputTypeName};`,
+    `  <ParseOptions extends IParseOptions>(text: string, options: ParseOptions): ${TypeName.ParseTextOutput}<ParseOptions>;`,
     '};'
   );
 
