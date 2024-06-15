@@ -218,7 +218,9 @@ export const { tokenList: GRAMMAR_TOKEN_LIST, tokenMap: GRAMMAR_TOKENS } =
     },
   });
 
-const grammarLexer = new Lexer(GRAMMAR_TOKEN_LIST);
+const grammarLexer = new Lexer(GRAMMAR_TOKEN_LIST, {
+  positionTracking: 'onlyOffset',
+});
 
 export const tokenizeGrammar = (text: string) => {
   resetIndentStack();

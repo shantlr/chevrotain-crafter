@@ -23,6 +23,7 @@ prog
           const target = path.resolve(dest, p);
           mkdirSync(path.parse(target).dir, { recursive: true });
           writeFileSync(target, content);
+          console.log(`Written ${path.relative(process.cwd(), target)}.`);
         },
       };
     } else {
@@ -39,4 +40,5 @@ prog
       debug: options.debug,
       writer,
     });
+    console.log('Parser generated!');
   });

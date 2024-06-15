@@ -1,0 +1,15 @@
+{
+  "name": "calculator",
+  "packageManager": "yarn@4.1.1",
+  "scripts": {
+    "test": "vitest",
+    "gen-parser": "chevrotain-test ./calculator.grammar ./src/parser"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "chevrotain-crafter": "portal:../.."
+  }
+}

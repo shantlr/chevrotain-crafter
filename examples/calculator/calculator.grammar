@@ -1,0 +1,11 @@
+tokens:
+  number:
+    pattern: /[-+]?\d+/
+
+rules:
+  start: expr
+
+  expr: addition-expr
+  addition-expr: left:multiplication-expr ("+" right:multiplication-expr)*
+  multiplication-expr: left:primary-expr ("*" right:primary-expr)*
+  primary-expr: ("(" value:expr ")") | value:number
