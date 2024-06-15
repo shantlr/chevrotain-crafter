@@ -8,6 +8,8 @@ import {
 import { type IWriter } from '../../types';
 import { formatFieldAccess, indent } from '../../utils/indent';
 import { discriminateType } from './discriminate-type';
+import { TypeName } from '../constant';
+import { mapTypeNameWithNodeType } from '../generate-types';
 
 const formatDiscriminationExpr = ({
   discriminationExpr,
@@ -33,6 +35,7 @@ const formatDiscriminationExpr = ({
       return formatCstFieldToAst({
         cstType: cstTypes[typeIndex],
         astType: astTypes[typeIndex],
+        optional: false,
         cstNodeVarName,
         indentLevel,
         ruleDescs,
@@ -48,6 +51,12 @@ const formatDiscriminationExpr = ({
         }
         case 'hasField': {
           formattedCondition = `'${condition.fieldName}' in ${cstNodeVarName}[0]`;
+          break;
+        }
+        default: {
+          throw new Error(
+            `Unhandled discrimination condition ${JSON.stringify(condition)}`
+          );
         }
         // case 'fieldOfType': {
         //   // condition = `cstNode.children${formatFieldAccess(discriminationExpr.condition.fieldName)}.length > 0`;
@@ -79,6 +88,7 @@ const formatDiscriminationExpr = ({
 const formatCstFieldToAst = ({
   cstType,
   astType,
+  optional,
   ruleDescs,
 
   cstNodeVarName,
@@ -86,6 +96,7 @@ const formatCstFieldToAst = ({
 }: {
   cstType: TypeDesc;
   astType: TypeDesc;
+  optional: boolean;
   ruleDescs: Record<string, RuleDesc>;
 
   cstNodeVarName: string;
@@ -117,7 +128,7 @@ const formatCstFieldToAst = ({
       const arg =
         cstType.type === 'array' ? `${cstNodeVarName}[0]` : cstNodeVarName;
 
-      return `map${ruleDesc.body.parseOutputTypeName}(${arg})`;
+      return `map${ruleDesc.body.parseOutputTypeName}(${arg}, options)`;
     }
     case 'array': {
       const itemType = astType.elementType;
@@ -128,15 +139,16 @@ const formatCstFieldToAst = ({
       }
 
       const content: string[] = [
-        `${cstNodeVarName}.map(`,
+        `${cstNodeVarName}${optional ? '?' : ''}.map(`,
         `${indent(indentLevel)}(node) => ${formatCstFieldToAst({
           astType: itemType,
           cstNodeVarName: 'node',
           cstType: cstType.elementType as TypeDescObj,
           ruleDescs,
+          optional: false,
           indentLevel: indentLevel + 1,
         })}`,
-        `${indent(indentLevel - 1)})`,
+        `${indent(indentLevel - 1)})${optional ? ' ?? []' : ''}`,
       ];
 
       return content.join('\n');
@@ -191,9 +203,10 @@ export const generateCstToAst = ({
   const allTypes = flatMap(ruleDescs, (r) => [
     r.body.parseOutputTypeName,
     r.body.cstOutputTypeName,
+    mapTypeNameWithNodeType(r.body.cstOutputTypeName),
   ]);
   const content: string[] = [
-    `import type { ${allTypes.join(', ')} } from './types';`,
+    `import type { ${allTypes.join(', ')}, ${TypeName.IParseOptions} } from './types';`,
     `import { TOKENS } from './lexer'`,
     '',
   ];
@@ -203,10 +216,11 @@ export const generateCstToAst = ({
 
     const cstNodeVarName = 'cstNode';
 
+    const outputType = `${ruleDesc.body.cstOutputTypeName} | ${mapTypeNameWithNodeType(ruleDesc.body.cstOutputTypeName)}`;
     content.push(
-      `const map${cstType} = (${cstNodeVarName}: ${cstType}): ${ruleDesc.body.cstOutputTypeName} => {`
+      `const map${cstType} = (${cstNodeVarName}: ${cstType}, options: ${TypeName.IParseOptions} | undefined): ${outputType} => {`,
+      `${indent(1)}const res: ${outputType} = {`
     );
-    content.push(`${indent(1)}return {`);
 
     const astType =
       ruleDesc.body.cstOutputType ?? ruleDesc.body.cstOutputTypeDefault;
@@ -222,23 +236,33 @@ export const generateCstToAst = ({
           astType: fieldType,
           cstNodeVarName: cstField,
           cstType: ruleCstChildren.fields[fieldName] as TypeDescObj,
+          optional: ruleCstChildren.fields[fieldName].fieldOptional,
           ruleDescs,
           indentLevel: 3,
         })},`
       );
     }
-    content.push(`${indent(1)}};`);
-
-    content.push('};');
+    content.push(
+      `${indent(1)}};`,
+      // #region Add node type if requested
+      `${indent(1)}if (options?.withNodeType) {`,
+      `${indent(2)}(res as ${mapTypeNameWithNodeType(ruleDesc.body.cstOutputTypeName)}).__type = '${ruleDesc.rule.name}';`,
+      `${indent(1)}}`,
+      `${indent(1)}return res;`,
+      // #endregion
+      '};'
+    );
   }
 
   content.push(
-    `export const cstToAst = (cst: ${rootRule.body.parseOutputTypeName}): ${rootRule.body.cstOutputTypeName} => {`
+    ``,
+    `/**`,
+    ` * Map chevrotain cst node into ast node based on grammar named sequences`,
+    ` */`,
+    `export const cstToAst = (cst: ${rootRule.body.parseOutputTypeName}, options?: ${TypeName.IParseOptions}): ${rootRule.body.cstOutputTypeName} => {`,
+    `${indent(1)}return map${rootRule.body.parseOutputTypeName}(cst, options);`,
+    '};'
   );
-  content.push(
-    `${indent(1)}return map${rootRule.body.parseOutputTypeName}(cst);`
-  );
-  content.push('};');
 
   writer.writeFile('cst-to-ast.ts', content.join('\n'));
 };

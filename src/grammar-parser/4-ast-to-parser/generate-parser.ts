@@ -47,7 +47,7 @@ const serializeChevrotainCalls = (
         `${indent(i)}]);`,
       ].join('\n');
     }
-    case 'optional': {
+    case 'zero-or-once': {
       const signature = `OPTION`;
       const method = formatCall('OPTION', signatureCount[signature] ?? 0);
       signatureCount[signature] = (signatureCount[signature] || 0) + 1;
@@ -57,7 +57,7 @@ const serializeChevrotainCalls = (
         `${indent(i)}});`,
       ].join('\n');
     }
-    case 'many': {
+    case 'zero-or-more': {
       const signature = `MANY`;
       const method = formatCall('MANY', signatureCount[signature] ?? 0);
       signatureCount[signature] = (signatureCount[signature] || 0) + 1;
@@ -68,7 +68,7 @@ const serializeChevrotainCalls = (
         `${indent(i)}});`,
       ].join('\n');
     }
-    case 'many1': {
+    case 'one-or-more': {
       const signature = `AT_LEAST_ONE`;
       const method = formatCall('AT_LEAST_ONE', signatureCount[signature] ?? 0);
       signatureCount[signature] = (signatureCount[signature] || 0) + 1;

@@ -1,5 +1,8 @@
 import { type GrammarRule } from '../2-validate-ast/types';
 
+/**
+ * Type description node
+ */
 export type TypeDesc =
   | TypeDescObj
   | TypeDescOr
@@ -30,7 +33,12 @@ export type TypeDescChevrotainToken = {
 };
 export type TypeDescObj = {
   type: 'object';
-  fields: Record<string, TypeDesc>;
+  fields: Record<
+    string,
+    TypeDesc & {
+      fieldOptional: boolean;
+    }
+  >;
 };
 export type TypeDescOr = {
   type: 'or';
@@ -49,8 +57,8 @@ export type TypeDescOptional = {
 export type ChevrotainNode =
   | ChevrotainConsume
   | ChevrotainSubrule
-  | ChevrotainOptional
-  | ChevrotainMany
+  | ChevrotainZeroOrOnce
+  | ChevrotainZeroOrMore
   | ChevrotainAtLeastOne
   | ChevrotainSeq
   | ChevrotainOr;
@@ -68,18 +76,18 @@ export type ChevrotainSubrule = {
   outputName: string;
 };
 
-export type ChevrotainOptional = {
-  type: 'optional';
+export type ChevrotainZeroOrOnce = {
+  type: 'zero-or-once';
   value: ChevrotainNode;
 };
 
-export type ChevrotainMany = {
-  type: 'many';
+export type ChevrotainZeroOrMore = {
+  type: 'zero-or-more';
   value: ChevrotainNode;
 };
 
 export type ChevrotainAtLeastOne = {
-  type: 'many1';
+  type: 'one-or-more';
   value: ChevrotainNode;
 };
 
@@ -108,6 +116,9 @@ export type RuleBodyDesc = {
    */
   parseOutputType: TypeDescObj;
 
+  /**
+   * Name of the cst output type
+   */
   cstOutputTypeName: string;
   /**
    * cst output type if there are named elements

@@ -1,5 +1,8 @@
 import { camelCase, mapValues, upperFirst } from 'lodash-es';
-import { type GrammarRuleSeqNode } from '../1-to-ast/types';
+import {
+  type GrammarRuleElemModifier,
+  type GrammarRuleSeqNode,
+} from '../1-to-ast/types';
 import { type GrammarToken, type GrammarRule } from '../2-validate-ast/types';
 import {
   isGroupNode,
@@ -29,83 +32,87 @@ const isArrayType = (type: TypeDesc | undefined): type is TypeDescArray => {
   );
 };
 
-const applyOptional = (type: TypeDescObj): TypeDescObj => {
+const applyZeroOrOnce = (type: TypeDescObj): TypeDescObj => {
   return {
     ...type,
-    fields: mapValues(
-      type.fields,
-      (f): TypeDesc => ({
-        type: 'optional',
-        value: f,
-      })
-    ),
+    fields: mapValues(type.fields, (f): TypeDescObj['fields'][string] => ({
+      type: 'optional',
+      value: f,
+      fieldOptional: f.fieldOptional,
+    })),
   };
 };
-const applyMany = (type: TypeDescObj): TypeDescObj => {
+const applyZeroOrMore = (type: TypeDescObj): TypeDescObj => {
   return {
     ...type,
-    fields: mapValues(
-      type.fields,
-      (f): TypeDesc => ({
-        type: 'array',
-        elementType: f,
-      })
-    ),
+    fields: mapValues(type.fields, (f): TypeDescObj['fields'][string] => ({
+      type: 'array',
+      elementType: f,
+      fieldOptional: f.fieldOptional,
+    })),
   };
 };
-const applyMany1 = (type: TypeDescObj): TypeDescObj => {
+const applyOnceOrMore = (type: TypeDescObj): TypeDescObj => {
   return {
     ...type,
-    fields: mapValues(
-      type.fields,
-      (f): TypeDesc => ({
-        type: 'array',
-        elementType: f,
-      })
-    ),
+    fields: mapValues(type.fields, (f): TypeDescObj['fields'][string] => ({
+      type: 'array',
+      elementType: f,
+      fieldOptional: f.fieldOptional,
+    })),
+  };
+};
+
+const makeObjectFieldOptional = (obj: TypeDescObj): TypeDescObj => {
+  return {
+    ...obj,
+    fields: mapValues(obj.fields, (f, key) => ({
+      ...f,
+      fieldOptional: true,
+    })),
   };
 };
 
 const applyModifier = (
   node: Omit<RuleBodyDesc, 'parseOutputTypeName' | 'cstOutputTypeName'>,
-  modifier: 'optional' | 'many' | 'many1'
+  modifier: GrammarRuleElemModifier
 ): Omit<RuleBodyDesc, 'parseOutputTypeName' | 'cstOutputTypeName'> => {
   switch (modifier) {
     case 'optional':
       return {
         chevrotain: {
-          type: 'optional',
+          type: 'zero-or-once',
           value: node.chevrotain,
         },
-        parseOutputType: applyOptional(node.parseOutputType),
+        parseOutputType: makeObjectFieldOptional(node.parseOutputType),
         cstOutputType: node.cstOutputType
-          ? applyOptional(node.cstOutputType)
+          ? applyZeroOrOnce(node.cstOutputType)
           : undefined,
-        cstOutputTypeDefault: applyOptional(node.cstOutputTypeDefault),
+        cstOutputTypeDefault: applyZeroOrOnce(node.cstOutputTypeDefault),
       };
     case 'many':
       return {
         chevrotain: {
-          type: 'many',
+          type: 'zero-or-more',
           value: node.chevrotain,
         },
-        parseOutputType: node.parseOutputType,
+        parseOutputType: makeObjectFieldOptional(node.parseOutputType),
         cstOutputType: node.cstOutputType
-          ? applyMany(node.cstOutputType)
+          ? applyZeroOrMore(node.cstOutputType)
           : undefined,
-        cstOutputTypeDefault: applyMany(node.cstOutputTypeDefault),
+        cstOutputTypeDefault: applyZeroOrMore(node.cstOutputTypeDefault),
       };
     case 'many1':
       return {
         chevrotain: {
-          type: 'many1',
+          type: 'one-or-more',
           value: node.chevrotain,
         },
         parseOutputType: node.parseOutputType,
         cstOutputType: node.cstOutputType
-          ? applyMany1(node.cstOutputType)
+          ? applyOnceOrMore(node.cstOutputType)
           : undefined,
-        cstOutputTypeDefault: applyMany1(node.cstOutputTypeDefault),
+        cstOutputTypeDefault: applyOnceOrMore(node.cstOutputTypeDefault),
       };
   }
 };
@@ -114,18 +121,28 @@ const mergeObjectType = (
   objectTypes: TypeDescObj[],
   opt?: {
     /**
-     * TODO: implem
      * Map A[] | B[] => (A | B)[]
      * instead of default A[] | B[]
      */
     unionOrArray?: boolean;
+
+    nonCommonFieldShouldBeOptional?: boolean;
   }
 ): TypeDescObj => {
-  const fields = objectTypes.reduce<Record<string, TypeDesc>>((acc, obj) => {
+  if (objectTypes.length === 1) {
+    return objectTypes[0];
+  }
+
+  const fields = objectTypes.reduce<TypeDescObj['fields']>((acc, obj) => {
     for (const [key, value] of Object.entries(obj.fields)) {
+      const isCommonField = opt?.nonCommonFieldShouldBeOptional
+        ? objectTypes.every((t) => key in t.fields)
+        : true;
+
       if (key in acc) {
         const existing = acc[key];
 
+        const fieldOptional = existing.fieldOptional || !isCommonField;
         if (opt?.unionOrArray) {
           // (A | B)[] + C => (A | B | C)[]
           if (isArrayType(existing) && isOrType(existing.elementType)) {
@@ -147,11 +164,13 @@ const mergeObjectType = (
                 type: 'or',
                 branch: [existing.elementType, value.elementType],
               },
+              fieldOptional,
             };
           } else {
             // A + B => (A | B)[]
             acc[key] = {
               type: 'array',
+              fieldOptional,
               elementType: {
                 type: 'or',
                 branch: [existing, value],
@@ -167,12 +186,16 @@ const mergeObjectType = (
           acc[key] = {
             type: 'or',
             branch: [acc[key], value],
+            fieldOptional,
           };
         }
+
         continue;
       }
 
-      acc[key] = value;
+      acc[key] = {
+        ...value,
+      };
     }
 
     return acc;
@@ -216,16 +239,21 @@ const mapNodeToChevrotainCalls = ({
       },
       parseOutputType: mergeObjectType(
         tests.map((t) => t.parseOutputType),
-        { unionOrArray: true }
+        { unionOrArray: true, nonCommonFieldShouldBeOptional: false }
       ),
       cstOutputType:
         cstOutputType.length > 0
           ? mergeObjectType(cstOutputType, {
               unionOrArray: true,
+              nonCommonFieldShouldBeOptional: false,
             })
           : undefined,
       cstOutputTypeDefault: mergeObjectType(
-        tests.map((t) => t.cstOutputTypeDefault)
+        tests.map((t) => t.cstOutputTypeDefault),
+        {
+          unionOrArray: true,
+          nonCommonFieldShouldBeOptional: false,
+        }
       ),
     };
   }
@@ -261,12 +289,14 @@ const mapNodeToChevrotainCalls = ({
         label: node.value,
         outputName: node.name ?? node.value,
       },
+      // { value: 'literal-string' } => { ['literal-string']: [Token] }
       parseOutputType: {
         type: 'object',
         fields: {
           // NOTE: chevrotain output are always array
           [node.name ?? node.value]: {
             type: 'array',
+            fieldOptional: false,
             elementType: {
               type: 'chevrotainToken',
               tokenName: node.value,
@@ -278,14 +308,20 @@ const mapNodeToChevrotainCalls = ({
         ? {
             type: 'object',
             fields: {
-              [node.name]: { type: 'string' },
+              [node.name]: {
+                fieldOptional: false,
+                type: 'string',
+              },
             },
           }
         : undefined,
       cstOutputTypeDefault: {
         type: 'object',
         fields: {
-          [node.value]: { type: 'string' },
+          [node.value]: {
+            fieldOptional: false,
+            type: 'string',
+          },
         },
       },
     };
@@ -304,6 +340,7 @@ const mapNodeToChevrotainCalls = ({
           fields: {
             [node.name ?? token.name]: {
               type: 'array',
+              fieldOptional: false,
               elementType: {
                 type: 'chevrotainToken',
                 tokenName: token.name,
@@ -315,14 +352,20 @@ const mapNodeToChevrotainCalls = ({
           ? {
               type: 'object',
               fields: {
-                [node.name]: { type: 'string' },
+                [node.name]: {
+                  fieldOptional: false,
+                  type: 'string',
+                },
               },
             }
           : undefined,
         cstOutputTypeDefault: {
           type: 'object',
           fields: {
-            [token.name]: { type: 'string' },
+            [token.name]: {
+              fieldOptional: false,
+              type: 'string',
+            },
           },
         },
       };
@@ -343,6 +386,7 @@ const mapNodeToChevrotainCalls = ({
           fields: {
             [node.name ?? rule.methodName]: {
               type: 'array',
+              fieldOptional: false,
               elementType: {
                 type: 'ruleRef',
                 ruleName: rule.name,
@@ -357,6 +401,7 @@ const mapNodeToChevrotainCalls = ({
                 [node.name ?? rule.methodName]: {
                   type: 'ruleRef',
                   ruleName: rule.name,
+                  fieldOptional: false,
                 },
               },
             }
@@ -367,6 +412,7 @@ const mapNodeToChevrotainCalls = ({
             [rule.methodName]: {
               type: 'ruleRef',
               ruleName: rule.name,
+              fieldOptional: false,
             },
           },
         },
@@ -408,7 +454,7 @@ const mapNodeToChevrotainCalls = ({
   return res;
 };
 
-const mapRuleNameToType = (ruleName: string): string => {
+const mapRuleNameToTypeName = (ruleName: string): string => {
   return upperFirst(camelCase(ruleName));
 };
 
@@ -422,7 +468,7 @@ export const mapRuleToChevrotain = ({
   tokens: Record<string, GrammarToken>;
 }): RuleBodyDesc => {
   const node = mapNodeToChevrotainCalls({
-    typeNamePrefix: mapRuleNameToType(rule.name),
+    typeNamePrefix: mapRuleNameToTypeName(rule.name),
     node: rule.astBody,
     tokens,
     rules,
@@ -430,19 +476,20 @@ export const mapRuleToChevrotain = ({
 
   return {
     ...node,
-    cstOutputTypeName: `Rule_${mapRuleNameToType(rule.name)}`,
-    parseOutputTypeName: `RuleCst_${mapRuleNameToType(rule.name)}`,
+    cstOutputTypeName: `Rule_${mapRuleNameToTypeName(rule.name)}`,
+    parseOutputTypeName: `RuleCst_${mapRuleNameToTypeName(rule.name)}`,
     parseOutputType: {
       type: 'object',
-
-      // NOTE:chevrotain rule cst output look like { name: 'rule-name', children: { ... } }
+      // NOTE: chevrotain rule cst output look like { name: 'rule-name', children: { ... } }
       fields: {
         name: {
           type: 'literal',
           value: rule.methodName,
+          fieldOptional: false,
         },
         children: {
           type: 'object',
+          fieldOptional: false,
           fields: {
             ...node.parseOutputType.fields,
           },

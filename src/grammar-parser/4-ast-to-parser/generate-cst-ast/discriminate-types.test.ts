@@ -66,6 +66,7 @@ describe('4-ast-to-parser/discriminate-types', () => {
               field1: {
                 type: 'chevrotainToken',
                 tokenName: 'token_1',
+                fieldOptional: false,
               },
             },
           },
@@ -75,6 +76,7 @@ describe('4-ast-to-parser/discriminate-types', () => {
               field1: {
                 type: 'chevrotainToken',
                 tokenName: 'token_2',
+                fieldOptional: false,
               },
             },
           },
@@ -118,6 +120,7 @@ describe('4-ast-to-parser/discriminate-types', () => {
               field1: {
                 type: 'chevrotainToken',
                 tokenName: 'token_1',
+                fieldOptional: false,
               },
             },
           },
@@ -127,6 +130,7 @@ describe('4-ast-to-parser/discriminate-types', () => {
               field2: {
                 type: 'chevrotainToken',
                 tokenName: 'token_2',
+                fieldOptional: false,
               },
             },
           },
@@ -166,6 +170,7 @@ describe('4-ast-to-parser/discriminate-types', () => {
               field1: {
                 type: 'chevrotainToken',
                 tokenName: 'token_1',
+                fieldOptional: false,
               },
             },
           },
@@ -175,6 +180,7 @@ describe('4-ast-to-parser/discriminate-types', () => {
               field2: {
                 type: 'chevrotainToken',
                 tokenName: 'token_2',
+                fieldOptional: false,
               },
             },
           },
@@ -184,6 +190,7 @@ describe('4-ast-to-parser/discriminate-types', () => {
               field3: {
                 type: 'chevrotainToken',
                 tokenName: 'token_3',
+                fieldOptional: false,
               },
             },
           },
@@ -236,10 +243,12 @@ describe('4-ast-to-parser/discriminate-types', () => {
               field1: {
                 type: 'chevrotainToken',
                 tokenName: 'token_1',
+                fieldOptional: false,
               },
               field2: {
                 type: 'chevrotainToken',
                 tokenName: 'token_2',
+                fieldOptional: false,
               },
             },
           },
@@ -249,10 +258,12 @@ describe('4-ast-to-parser/discriminate-types', () => {
               field1: {
                 type: 'chevrotainToken',
                 tokenName: 'token_1',
+                fieldOptional: false,
               },
               field3: {
                 type: 'chevrotainToken',
                 tokenName: 'token_3',
+                fieldOptional: false,
               },
             },
           },
@@ -291,9 +302,11 @@ describe('4-ast-to-parser/discriminate-types', () => {
             fields: {
               field_1: {
                 type: 'string',
+                fieldOptional: false,
               },
               field_2: {
                 type: 'string',
+                fieldOptional: false,
               },
             },
           },
@@ -302,9 +315,11 @@ describe('4-ast-to-parser/discriminate-types', () => {
             fields: {
               field_1: {
                 type: 'string',
+                fieldOptional: false,
               },
               field_3: {
                 type: 'string',
+                fieldOptional: false,
               },
             },
           },
@@ -312,10 +327,12 @@ describe('4-ast-to-parser/discriminate-types', () => {
             type: 'object',
             fields: {
               field_2: {
+                fieldOptional: false,
                 type: 'string',
               },
               field_3: {
                 type: 'string',
+                fieldOptional: false,
               },
             },
           },
@@ -367,9 +384,11 @@ describe('4-ast-to-parser/discriminate-types', () => {
             fields: {
               field_1: {
                 type: 'string',
+                fieldOptional: false,
               },
               field_2: {
                 type: 'string',
+                fieldOptional: false,
               },
             },
           },
@@ -378,9 +397,11 @@ describe('4-ast-to-parser/discriminate-types', () => {
             fields: {
               field_1: {
                 type: 'string',
+                fieldOptional: false,
               },
               field_2: {
                 type: 'string',
+                fieldOptional: false,
               },
             },
           },
@@ -402,9 +423,11 @@ describe('4-ast-to-parser/discriminate-types', () => {
             fields: {
               field_1: {
                 type: 'string',
+                fieldOptional: false,
               },
               field_2: {
                 type: 'string',
+                fieldOptional: false,
               },
             },
           },
@@ -413,9 +436,11 @@ describe('4-ast-to-parser/discriminate-types', () => {
             fields: {
               field_1: {
                 type: 'string',
+                fieldOptional: false,
               },
               field_2: {
                 type: 'string',
+                fieldOptional: false,
               },
             },
           },

@@ -39,8 +39,10 @@ export type GrammarRuleOrNode = {
   value: GrammarRuleSeqNode[][];
 };
 
+export type GrammarRuleElemModifier = 'optional' | 'many' | 'many1';
+
 export type GrammarRuleElemNode = {
-  modifier?: 'optional' | 'many' | 'many1';
+  modifier?: GrammarRuleElemModifier;
   name?: string;
   value: string | GrammarRuleRefElemNode | GrammarRuleNodeElemGroup;
 };

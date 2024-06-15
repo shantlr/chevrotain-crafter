@@ -8,7 +8,7 @@ import path from 'path';
 export const prog = new Command();
 
 prog
-  .command('parse <file> [destination-folder]', {
+  .command('parse <grammar-file> [codegen-destination-folder]', {
     isDefault: true,
   })
   .option('-d, --debug', 'output extra debugging')

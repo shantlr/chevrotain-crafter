@@ -15,9 +15,17 @@ export const parseGrammarFile = (
         console.log(`//< ${path}`);
       },
     },
+    generateTypes = true,
+    generateLexer = true,
+    generateParser = true,
+    generateCstToAst = true,
   }: {
     debug?: boolean;
     writer: IWriter;
+    generateTypes?: boolean;
+    generateLexer?: boolean;
+    generateParser?: boolean;
+    generateCstToAst?: boolean;
   }
 ) => {
   const ast = parseGrammarFileToAst(fileText, {
@@ -37,5 +45,9 @@ export const parseGrammarFile = (
     tokens: validated.tokens,
     ruleDescs: describes.ruleDescs,
     writer,
+    generateCstToAst,
+    generateLexer,
+    generateParser,
+    generateTypes,
   });
 };

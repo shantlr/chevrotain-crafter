@@ -55,9 +55,11 @@ describe('3-types', () => {
                         "type": "array",
                       },
                     },
+                    "optional": false,
                     "type": "object",
                   },
                   "name": {
+                    "optional": false,
                     "type": "literal",
                     "value": "start",
                   },
@@ -70,6 +72,121 @@ describe('3-types', () => {
               "astBody": [
                 {
                   "value": "hello",
+                },
+              ],
+              "methodName": "start",
+              "name": "start",
+            },
+          },
+        },
+      }
+    `);
+  });
+  it.only('should map optional literal', () => {
+    expect(
+      describeRules({
+        rules: {
+          start: {
+            name: 'start',
+            methodName: 'start',
+            astBody: [
+              { value: 'hello' },
+              { value: 'world', modifier: 'optional' },
+            ],
+          },
+        },
+        tokens: {},
+      })
+    ).toMatchInlineSnapshot(`
+      {
+        "ruleDescs": {
+          "start": {
+            "body": {
+              "chevrotain": {
+                "type": "seq",
+                "value": [
+                  {
+                    "label": "hello",
+                    "outputName": "hello",
+                    "tokenName": "hello",
+                    "type": "consume",
+                  },
+                  {
+                    "type": "optional",
+                    "value": {
+                      "label": "world",
+                      "outputName": "world",
+                      "tokenName": "world",
+                      "type": "consume",
+                    },
+                  },
+                ],
+              },
+              "cstOutputType": undefined,
+              "cstOutputTypeDefault": {
+                "fields": {
+                  "hello": {
+                    "fieldOptional": false,
+                    "type": "string",
+                  },
+                  "world": {
+                    "fieldOptional": true,
+                    "type": "optional",
+                    "value": {
+                      "fieldOptional": false,
+                      "type": "string",
+                    },
+                  },
+                },
+                "type": "object",
+              },
+              "cstOutputTypeName": "Rule_Start",
+              "parseOutputType": {
+                "fields": {
+                  "children": {
+                    "fieldOptional": false,
+                    "fields": {
+                      "hello": {
+                        "elementType": {
+                          "tokenName": "hello",
+                          "type": "chevrotainToken",
+                        },
+                        "fieldOptional": false,
+                        "type": "array",
+                      },
+                      "world": {
+                        "fieldOptional": true,
+                        "type": "optional",
+                        "value": {
+                          "elementType": {
+                            "tokenName": "world",
+                            "type": "chevrotainToken",
+                          },
+                          "fieldOptional": false,
+                          "type": "array",
+                        },
+                      },
+                    },
+                    "type": "object",
+                  },
+                  "name": {
+                    "fieldOptional": false,
+                    "type": "literal",
+                    "value": "start",
+                  },
+                },
+                "type": "object",
+              },
+              "parseOutputTypeName": "RuleCst_Start",
+            },
+            "rule": {
+              "astBody": [
+                {
+                  "value": "hello",
+                },
+                {
+                  "modifier": "optional",
+                  "value": "world",
                 },
               ],
               "methodName": "start",
@@ -138,9 +255,11 @@ describe('3-types', () => {
               "cstOutputTypeDefault": {
                 "fields": {
                   "hello": {
+                    "optional": false,
                     "type": "string",
                   },
                   "world": {
+                    "optional": false,
                     "type": "string",
                   },
                 },
@@ -156,6 +275,7 @@ describe('3-types', () => {
                           "tokenName": "hello",
                           "type": "chevrotainToken",
                         },
+                        "optional": false,
                         "type": "array",
                       },
                       "world": {
@@ -163,12 +283,15 @@ describe('3-types', () => {
                           "tokenName": "world",
                           "type": "chevrotainToken",
                         },
+                        "optional": false,
                         "type": "array",
                       },
                     },
+                    "optional": false,
                     "type": "object",
                   },
                   "name": {
+                    "optional": false,
                     "type": "literal",
                     "value": "start",
                   },
@@ -271,9 +394,11 @@ describe('3-types', () => {
               "cstOutputTypeDefault": {
                 "fields": {
                   "hello": {
+                    "optional": false,
                     "type": "string",
                   },
                   "world": {
+                    "optional": false,
                     "type": "string",
                   },
                 },
@@ -289,6 +414,7 @@ describe('3-types', () => {
                           "tokenName": "hello",
                           "type": "chevrotainToken",
                         },
+                        "optional": false,
                         "type": "array",
                       },
                       "param1": {
@@ -296,12 +422,15 @@ describe('3-types', () => {
                           "tokenName": "world",
                           "type": "chevrotainToken",
                         },
+                        "optional": false,
                         "type": "array",
                       },
                     },
+                    "optional": false,
                     "type": "object",
                   },
                   "name": {
+                    "optional": false,
                     "type": "literal",
                     "value": "start",
                   },
@@ -410,9 +539,11 @@ describe('3-types', () => {
                         "type": "array",
                       },
                     },
+                    "optional": false,
                     "type": "object",
                   },
                   "name": {
+                    "optional": false,
                     "type": "literal",
                     "value": "r_rule_1",
                   },
@@ -470,6 +601,7 @@ describe('3-types', () => {
                   "param1": {
                     "branch": [
                       {
+                        "optional": false,
                         "type": "string",
                       },
                       {
@@ -477,6 +609,7 @@ describe('3-types', () => {
                         "type": "ruleRef",
                       },
                     ],
+                    "optional": false,
                     "type": "or",
                   },
                 },
@@ -485,9 +618,11 @@ describe('3-types', () => {
               "cstOutputTypeDefault": {
                 "fields": {
                   "hello": {
+                    "optional": false,
                     "type": "string",
                   },
                   "r_rule_1": {
+                    "optional": false,
                     "ruleName": "rule_1",
                     "type": "ruleRef",
                   },
@@ -506,6 +641,7 @@ describe('3-types', () => {
                               "tokenName": "hello",
                               "type": "chevrotainToken",
                             },
+                            "optional": false,
                             "type": "array",
                           },
                           {
@@ -516,12 +652,15 @@ describe('3-types', () => {
                             "type": "array",
                           },
                         ],
+                        "optional": false,
                         "type": "or",
                       },
                     },
+                    "optional": false,
                     "type": "object",
                   },
                   "name": {
+                    "optional": false,
                     "type": "literal",
                     "value": "r_start",
                   },
@@ -611,6 +750,7 @@ describe('3-types', () => {
                     "elementType": {
                       "branch": [
                         {
+                          "optional": false,
                           "type": "string",
                         },
                         {
@@ -619,6 +759,7 @@ describe('3-types', () => {
                       ],
                       "type": "or",
                     },
+                    "optional": false,
                     "type": "array",
                   },
                 },
@@ -627,9 +768,11 @@ describe('3-types', () => {
               "cstOutputTypeDefault": {
                 "fields": {
                   "hello": {
+                    "optional": false,
                     "type": "string",
                   },
                   "world": {
+                    "optional": false,
                     "type": "string",
                   },
                 },
@@ -654,12 +797,15 @@ describe('3-types', () => {
                           ],
                           "type": "or",
                         },
+                        "optional": false,
                         "type": "array",
                       },
                     },
+                    "optional": false,
                     "type": "object",
                   },
                   "name": {
+                    "optional": false,
                     "type": "literal",
                     "value": "r_start",
                   },

@@ -59,7 +59,7 @@ rules:
         TOKENS["world"],
       ]);
       export const tokenizeText = (text: string) => {
-        const tokens = grammarLexer.tokenize(preprocessedText.text);
+        const tokens = lexer.tokenize(text);
         return tokens.tokens;
       };
       ## parser.ts
@@ -74,12 +74,12 @@ rules:
         });
 
         constructor() {
-          super(GRAMMAR_TOKEN_LIST);
+          super(TOKENS);
           this.performSelfAnalysis();
         }
       }
 
-      export const parseTextToCst = (tokens: IToken) => {
+      export const parseTextToCst = (tokens: IToken[]) => {
         const parser = new Parser();
         parser.input = tokens;
         const cst = parser.r_start();
@@ -104,17 +104,107 @@ rules:
         return mapRuleCst_Start(cst);
       };
       ## index.ts
-      import { tokenizeText } from './lexer
+      import { tokenizeText } from './lexer';
       import { parseTextToCst } from './parser';
-      import { mapCstToAst } from './cst-to-ast';
+      import { cstToAst } from './cst-to-ast';
 
       export const parse = (text: string) => {
         const tokens = tokenizeText(text);
         const cst = parseTextToCst(tokens);
-        const ast = mapCstToAst(cst);
+        const ast = cstToAst(cst);
         return ast;
       };
       "
     `);
+  });
+
+  describe('types', () => {
+    it('should type zero_or_more as optional chevotain type', () => {
+      parseGrammarFile(
+        `
+  rules:
+    start: "hello" "world"*`,
+        {
+          writer,
+          generateCstToAst: false,
+          generateLexer: false,
+          generateParser: false,
+          generateTypes: true,
+        }
+      );
+      expect(res).toMatchInlineSnapshot(`
+        "## types.ts
+        import { IToken } from 'chevrotain';
+
+        export type RuleCst_Start = {
+          name: 'r_start';
+          children: {
+            hello: IToken[];
+            world?: IToken[];
+          };
+        };
+
+        export type Rule_Start = {
+          hello: string;
+          world: string[];
+        };
+        ## index.ts
+        import { tokenizeText } from './lexer';
+        import { parseTextToCst } from './parser';
+        import { cstToAst } from './cst-to-ast';
+
+        export const parse = (text: string) => {
+          const tokens = tokenizeText(text);
+          const cst = parseTextToCst(tokens);
+          const ast = cstToAst(cst);
+          return ast;
+        };
+        "
+      `);
+    });
+    it('should type zero_or_one as optional chevotain type', () => {
+      parseGrammarFile(
+        `
+      rules:
+        start: "hello" "world"?`,
+        {
+          writer,
+          generateCstToAst: false,
+          generateLexer: false,
+          generateParser: false,
+          generateTypes: true,
+        }
+      );
+
+      expect(res).toMatchInlineSnapshot(`
+        "## types.ts
+        import { IToken } from 'chevrotain';
+
+        export type RuleCst_Start = {
+          name: 'r_start';
+          children: {
+            hello: IToken[];
+            world?: IToken[];
+          };
+        };
+
+        export type Rule_Start = {
+          hello: string;
+          world?: string;
+        };
+        ## index.ts
+        import { tokenizeText } from './lexer';
+        import { parseTextToCst } from './parser';
+        import { cstToAst } from './cst-to-ast';
+
+        export const parse = (text: string) => {
+          const tokens = tokenizeText(text);
+          const cst = parseTextToCst(tokens);
+          const ast = cstToAst(cst);
+          return ast;
+        };
+        "
+      `);
+    });
   });
 });
