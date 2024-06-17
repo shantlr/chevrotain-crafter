@@ -1,6 +1,7 @@
 {
-  "name": "chevrotain-crafter",
+  "name": "patois",
   "packageManager": "yarn@4.1.1",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "tsx ./src/cli/index.ts",
@@ -14,9 +15,7 @@
     "dist",
     "README.md"
   ],
-  "bin": {
-    "chevrotain-test": "./dist/cli.js"
-  },
+  "bin": "./dist/cli.js",
   "dependencies": {
     "chalk": "^5.3.0",
     "chevrotain": "^11.0.3",

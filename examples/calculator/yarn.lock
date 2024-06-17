@@ -590,7 +590,7 @@ __metadata:
   resolution: "calculator@workspace:."
   dependencies:
     "@types/node": "npm:^20.12.12"
-    chevrotain-crafter: "portal:../.."
+    patois: "portal:../.."
     vitest: "npm:^1.6.0"
   languageName: unknown
   linkType: soft
@@ -625,19 +625,6 @@ __metadata:
   checksum: 10c0/94aa37a7315c0e8a83d0112b5bfb5a8624f7f0f81057c73e4707729cdd8077166c6aefb3d8e2b92c63ee130d4a2ff94bad46d547e12f3238cc1d78342a973841
   languageName: node
   linkType: hard
-
-"chevrotain-crafter@portal:../..::locator=calculator%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "chevrotain-crafter@portal:../..::locator=calculator%40workspace%3A."
-  dependencies:
-    chalk: "npm:^5.3.0"
-    chevrotain: "npm:^11.0.3"
-    commander: "npm:^12.0.0"
-    lodash-es: "npm:^4.17.21"
-  bin:
-    chevrotain-test: ./dist/cli.js
-  languageName: node
-  linkType: soft
 
 "chevrotain@npm:^11.0.3":
   version: 11.0.3
@@ -1422,6 +1409,19 @@ __metadata:
   checksum: 10c0/f63e1bc1b33593cdf094ed6ff5c49c1c0dc5dc20a646ca9725cc7fe7cd9995002d51d5685b9b2ec6814342935748b711bafa840f84c0bb04e38ff40a335c94dc
   languageName: node
   linkType: hard
+
+"patois@portal:../..::locator=calculator%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "patois@portal:../..::locator=calculator%40workspace%3A."
+  dependencies:
+    chalk: "npm:^5.3.0"
+    chevrotain: "npm:^11.0.3"
+    commander: "npm:^12.0.0"
+    lodash-es: "npm:^4.17.21"
+  bin:
+    patois: ./dist/cli.js
+  languageName: node
+  linkType: soft
 
 "picocolors@npm:^1.0.0":
   version: 1.0.1
