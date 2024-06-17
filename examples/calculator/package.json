@@ -3,13 +3,13 @@
   "packageManager": "yarn@4.1.1",
   "scripts": {
     "test": "vitest",
-    "gen-parser": "patois ./calculator.grammar ./src/parser"
+    "gen-parser": "drivel ./calculator.grammar ./src/parser"
   },
   "devDependencies": {
     "@types/node": "^20.12.12",
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "patois": "portal:../.."
+    "drivel": "portal:../.."
   }
 }

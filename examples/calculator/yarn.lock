@@ -590,7 +590,7 @@ __metadata:
   resolution: "calculator@workspace:."
   dependencies:
     "@types/node": "npm:^20.12.12"
-    patois: "portal:../.."
+    drivel: "portal:../.."
     vitest: "npm:^1.6.0"
   languageName: unknown
   linkType: soft
@@ -722,6 +722,19 @@ __metadata:
   checksum: 10c0/32e27ac7dbffdf2fb0eb5a84efd98a9ad084fbabd5ac9abb8757c6770d5320d2acd172830b28c4add29bb873d59420601dfc805ac4064330ce59b1adfd0593b2
   languageName: node
   linkType: hard
+
+"drivel@portal:../..::locator=calculator%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "drivel@portal:../..::locator=calculator%40workspace%3A."
+  dependencies:
+    chalk: "npm:^5.3.0"
+    chevrotain: "npm:^11.0.3"
+    commander: "npm:^12.0.0"
+    lodash-es: "npm:^4.17.21"
+  bin:
+    drivel: ./dist/cli.js
+  languageName: node
+  linkType: soft
 
 "eastasianwidth@npm:^0.2.0":
   version: 0.2.0
@@ -1409,19 +1422,6 @@ __metadata:
   checksum: 10c0/f63e1bc1b33593cdf094ed6ff5c49c1c0dc5dc20a646ca9725cc7fe7cd9995002d51d5685b9b2ec6814342935748b711bafa840f84c0bb04e38ff40a335c94dc
   languageName: node
   linkType: hard
-
-"patois@portal:../..::locator=calculator%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "patois@portal:../..::locator=calculator%40workspace%3A."
-  dependencies:
-    chalk: "npm:^5.3.0"
-    chevrotain: "npm:^11.0.3"
-    commander: "npm:^12.0.0"
-    lodash-es: "npm:^4.17.21"
-  bin:
-    patois: ./dist/cli.js
-  languageName: node
-  linkType: soft
 
 "picocolors@npm:^1.0.0":
   version: 1.0.1

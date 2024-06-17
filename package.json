@@ -1,8 +1,11 @@
 {
-  "name": "patois",
+  "name": "drivel",
   "packageManager": "yarn@4.1.1",
   "version": "0.0.1",
   "type": "module",
+  "repository": {
+    "url": "https://github.com/shantlr/drivel"
+  },
   "scripts": {
     "dev": "tsx ./src/cli/index.ts",
     "test": "vitest",
