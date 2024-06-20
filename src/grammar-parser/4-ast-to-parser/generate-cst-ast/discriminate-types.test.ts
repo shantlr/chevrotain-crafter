@@ -89,6 +89,7 @@ describe('4-ast-to-parser/discriminate-types', () => {
           "fieldName": "field1",
           "type": "fieldOfType",
           "value": {
+            "fieldOptional": false,
             "tokenName": "token_1",
             "type": "chevrotainToken",
           },

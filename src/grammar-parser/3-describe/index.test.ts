@@ -112,7 +112,7 @@ describe('3-types', () => {
                     "type": "consume",
                   },
                   {
-                    "type": "optional",
+                    "type": "zero-or-once",
                     "value": {
                       "label": "world",
                       "outputName": "world",
@@ -130,7 +130,7 @@ describe('3-types', () => {
                     "type": "string",
                   },
                   "world": {
-                    "fieldOptional": true,
+                    "fieldOptional": false,
                     "type": "optional",
                     "value": {
                       "fieldOptional": false,
@@ -155,16 +155,12 @@ describe('3-types', () => {
                         "type": "array",
                       },
                       "world": {
-                        "fieldOptional": true,
-                        "type": "optional",
-                        "value": {
-                          "elementType": {
-                            "tokenName": "world",
-                            "type": "chevrotainToken",
-                          },
-                          "fieldOptional": false,
-                          "type": "array",
+                        "elementType": {
+                          "tokenName": "world",
+                          "type": "chevrotainToken",
                         },
+                        "fieldOptional": true,
+                        "type": "array",
                       },
                     },
                     "type": "object",

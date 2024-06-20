@@ -41,6 +41,22 @@ rules:
           | string
           | string[];
       };
+      export type Rule_Start_WithNodeType = {
+        p1: 
+          | string
+          | string[];
+        __type: 'start';
+      }
+      export type IParseOptions = {
+        withNodeType?: boolean;
+      };
+      export type ParseTextOutput<ParseOptions extends IParseOptions> =
+        ParseOptions extends { withNodeType: true } ? Rule_Start_WithNodeType
+        : Rule_Start;
+      export interface ParseText {
+        (text: string): Rule_Start;
+        <ParseOptions extends IParseOptions>(text: string, options: ParseOptions): ParseTextOutput<ParseOptions>;
+      };
       ## lexer.ts
       import { createToken, Lexer } from 'chevrotain';
       export const TOKENS = {
@@ -90,28 +106,37 @@ rules:
         return cst as RuleCst_Start;
       }
       ## cst-to-ast.ts
-      import type { RuleCst_Start, Rule_Start } from './types';
+      import type { RuleCst_Start, Rule_Start, Rule_Start_WithNodeType, IParseOptions } from './types';
       import { TOKENS } from './lexer'
 
-      const mapRuleCst_Start = (cstNode: RuleCst_Start): Rule_Start => {
-        return {
+      const mapRuleCst_Start = (cstNode: RuleCst_Start, options: IParseOptions | undefined): Rule_Start | Rule_Start_WithNodeType => {
+        const res: Rule_Start | Rule_Start_WithNodeType = {
           p1: cstNode.children.p1.map(
             (node) => node.tokenType === TOKENS.hello ? node.image : node.image
           ),
         };
+        if (options?.withNodeType) {
+          (res as Rule_Start_WithNodeType).__type = 'start';
+        }
+        return res;
       };
-      export const cstToAst = (cst: RuleCst_Start): Rule_Start => {
-        return mapRuleCst_Start(cst);
+
+      /**
+       * Map chevrotain cst node into ast node based on grammar named sequences
+       */
+      export const cstToAst = (cst: RuleCst_Start, options?: IParseOptions): Rule_Start => {
+        return mapRuleCst_Start(cst, options);
       };
       ## index.ts
       import { tokenizeText } from './lexer';
       import { parseTextToCst } from './parser';
       import { cstToAst } from './cst-to-ast';
+      import { IParseOptions, ParseText } from './types';
 
-      export const parse = (text: string) => {
+      export const parse: ParseText = <ParseOptions extends IParseOptions>(text: string, options?: ParseOptions) => {
         const tokens = tokenizeText(text);
         const cst = parseTextToCst(tokens);
-        const ast = cstToAst(cst);
+        const ast = cstToAst(cst, options);
         return ast;
       };
       "
@@ -148,15 +173,31 @@ rules:
           hello: string;
           world: string[];
         };
+        export type Rule_Start_WithNodeType = {
+          hello: string;
+          world: string[];
+          __type: 'start';
+        }
+        export type IParseOptions = {
+          withNodeType?: boolean;
+        };
+        export type ParseTextOutput<ParseOptions extends IParseOptions> =
+          ParseOptions extends { withNodeType: true } ? Rule_Start_WithNodeType
+          : Rule_Start;
+        export interface ParseText {
+          (text: string): Rule_Start;
+          <ParseOptions extends IParseOptions>(text: string, options: ParseOptions): ParseTextOutput<ParseOptions>;
+        };
         ## index.ts
         import { tokenizeText } from './lexer';
         import { parseTextToCst } from './parser';
         import { cstToAst } from './cst-to-ast';
+        import { IParseOptions, ParseText } from './types';
 
-        export const parse = (text: string) => {
+        export const parse: ParseText = <ParseOptions extends IParseOptions>(text: string, options?: ParseOptions) => {
           const tokens = tokenizeText(text);
           const cst = parseTextToCst(tokens);
-          const ast = cstToAst(cst);
+          const ast = cstToAst(cst, options);
           return ast;
         };
         "
@@ -192,15 +233,31 @@ rules:
           hello: string;
           world?: string;
         };
+        export type Rule_Start_WithNodeType = {
+          hello: string;
+          world?: string;
+          __type: 'start';
+        }
+        export type IParseOptions = {
+          withNodeType?: boolean;
+        };
+        export type ParseTextOutput<ParseOptions extends IParseOptions> =
+          ParseOptions extends { withNodeType: true } ? Rule_Start_WithNodeType
+          : Rule_Start;
+        export interface ParseText {
+          (text: string): Rule_Start;
+          <ParseOptions extends IParseOptions>(text: string, options: ParseOptions): ParseTextOutput<ParseOptions>;
+        };
         ## index.ts
         import { tokenizeText } from './lexer';
         import { parseTextToCst } from './parser';
         import { cstToAst } from './cst-to-ast';
+        import { IParseOptions, ParseText } from './types';
 
-        export const parse = (text: string) => {
+        export const parse: ParseText = <ParseOptions extends IParseOptions>(text: string, options?: ParseOptions) => {
           const tokens = tokenizeText(text);
           const cst = parseTextToCst(tokens);
-          const ast = cstToAst(cst);
+          const ast = cstToAst(cst, options);
           return ast;
         };
         "
