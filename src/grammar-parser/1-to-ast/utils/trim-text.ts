@@ -75,10 +75,14 @@ const createMultiStageTextProcessor = (
  */
 export const trimTextLines = createMultiStageTextProcessor([
   {
+    // remove line trailing spaces
     regex: /\s+\n/g,
     replace: '\n',
   },
   {
+    // remove multiple empty lines
+    // remove leading and trailing spaces
+    // remove trailing newlines
     regex: /(\n{2,})|(\n$)|(^\s+)|(\s+$)/g,
     replace: '',
   },

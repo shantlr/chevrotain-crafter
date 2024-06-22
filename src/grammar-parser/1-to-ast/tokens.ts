@@ -230,11 +230,5 @@ export const tokenizeGrammar = (text: string) => {
   const preprocessedText = trimTextLines(text);
   const tokens = grammarLexer.tokenize(preprocessedText.text);
 
-  if (tokens.errors.length) {
-    throw new Error(
-      `Failed to tokenize grammar file with ${tokens.errors.length} errors.`
-    );
-  }
-
   return tokens;
 };

@@ -3,7 +3,7 @@
   "packageManager": "yarn@4.1.1",
   "scripts": {
     "test": "vitest",
-    "gen-parser": "drivel ./calculator.grammar ./src/parser"
+    "gen-parser": "drivel gen ./calculator.grammar ./src/parser"
   },
   "devDependencies": {
     "@types/node": "^20.12.12",

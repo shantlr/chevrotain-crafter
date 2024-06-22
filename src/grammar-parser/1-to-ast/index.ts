@@ -10,9 +10,16 @@ import { grammarCstToAst } from './cst-to-ast';
 import { tokenizeGrammar } from './tokens';
 import { type GrammarRootNode } from './types';
 
+export const getPositionFromOffset = (text: string, offset: number) => {
+  const line = text.slice(0, offset).split('\n').length;
+  const col = offset - text.lastIndexOf('\n', offset - 1);
+  return { line, col };
+};
+
 const logLexError = (text: string, err: ILexingError) => {
   console.log(err);
-  console.log(`Fail to parse token at Ln ${err.line}, Col ${err.column}:`);
+  const { line, col } = getPositionFromOffset(text, err.offset);
+  console.log(`Fail to parse token at Ln ${line}, Col ${col}:`);
 
   const beforeSameLine = text.slice(
     text.lastIndexOf('\n', err.offset - 1) + 1,
@@ -69,6 +76,12 @@ export const parseGrammarFileToAst = (
 
   if (tokens.errors.length) {
     if (debug) {
+      if (tokens.tokens.length > 5) {
+        console.log('Last 5 tokens:');
+      } else {
+        console.log('Parsed tokens:');
+      }
+      console.log(tokens.tokens.slice(-10));
       tokens.errors.forEach((err) => {
         logLexError(fileText, err);
       });
